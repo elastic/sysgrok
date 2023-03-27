@@ -1,3 +1,5 @@
+import sys
+
 import openai
 
 command = "findfaster"
@@ -37,6 +39,7 @@ def run(args_parser, args):
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         temperature=temp,
+        stream=True,
         messages=[
             {
                 "role": "system",
@@ -50,6 +53,14 @@ def run(args_parser, args):
         ]
     )
 
-    result = completion['choices'][0]['message']['content']
-    print(result)
+    wrote_reply = False
+    for chunk in completion:
+        delta = chunk["choices"][0]["delta"]
+        if "content" not in delta:
+            continue
+        sys.stdout.write((delta["content"]))
+        wrote_reply = True
+
+    if wrote_reply:
+        sys.stdout.write("\n")
     return 0
