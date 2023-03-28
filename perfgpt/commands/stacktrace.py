@@ -13,14 +13,16 @@ def add_to_command_parser(subparsers):
 
 
 prompt = """You are assisting me with understanding a stack trace from a software profiler, such
-as pprof or perf record. I will provide you with the stack trace that consumes
-the most CPU. A stack trace is a call stack, showing a list of functions that call each other.
-It is in reverse order.
+as pprof or perf record. My goal is to improve the software so that it runs faster and is more
+efficient. I will provide you with the stack trace that consumes the most CPU. A stack trace
+is a call stack, showing a list of functions that call each other. The stack trace is in reverse
+order.
 
 First, summarise what the software is doing based on the stacktrace,
 including an explanation of any bottlenecks or performance issues that are present.
-Then suggest actions I may take to fix bottlenecks or performance issues that are
-shown in the stack trace.
+Then, suggest actions I may take to fix bottlenecks or performance issues that are
+shown in the stack trace. For each action give a short and concise summary, then a more detailed explanation
+that includes examples to clarify what you mean. If there are multiple alternative actions then present them as a list.
 
 This is the stack trace:
 
