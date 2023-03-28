@@ -3,11 +3,11 @@ import sys
 import openai
 
 command = "findfaster"
-help = "Try to find a faster version of the provided library or program"
+help = "Search for faster alternatives to a provided library or program"
 
 
 def add_to_command_parser(subparsers):
-    parser = subparsers.add_parser(command)
+    parser = subparsers.add_parser(command, help=help)
     parser.add_argument("-t", "--software-type", choices=["program", "library", "pylibrary"], default="library",
                         help="Specify the type of software. Not necessary, but can lead to better results.")
     parser.add_argument("target", help="The program or library to find a faster version of")

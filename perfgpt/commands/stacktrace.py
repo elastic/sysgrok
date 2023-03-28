@@ -8,8 +8,10 @@ help = "Summarise a stack trace and suggest changes to optimise the software"
 
 
 def add_to_command_parser(subparsers):
-    parser = subparsers.add_parser(command)
-    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser = subparsers.add_parser(command, help=help)
+    parser.add_argument(
+        'infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
+        help="The file containing the stack trace. Defaults to stdin.")
 
 
 prompt = """You are assisting me with understanding a stack trace from a software profiler, such

@@ -4,12 +4,14 @@ import sys
 import openai
 
 command = "topn"
-help = "Analyse Top-N output from a profiler and suggest improvements"
+help = "Summarise Top-N output from a profiler and suggest improvements"
 
 
 def add_to_command_parser(subparsers):
-    parser = subparsers.add_parser(command)
-    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser = subparsers.add_parser(command, help=help)
+    parser.add_argument(
+        'infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
+        help="The file containing the Top N. Defaults to stdin.")
 
 
 prompt = """You are assisting me with understanding the top most expensive functions found by a

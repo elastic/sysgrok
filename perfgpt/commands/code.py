@@ -4,12 +4,14 @@ import sys
 import openai
 
 command = "code"
-help = "Analyse profiler-annoted code and suggest optimisations"
+help = "Summarise profiler-annoted code and suggest optimisations"
 
 
 def add_to_command_parser(subparsers):
-    parser = subparsers.add_parser(command)
-    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser = subparsers.add_parser(command, help=help)
+    parser.add_argument(
+        'infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
+        help="The file containing the annotated code. Defaults to stdin.")
 
 
 prompt = """You are assisting me with optimising code to make it faster or more
