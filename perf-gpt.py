@@ -9,6 +9,7 @@
 
 from perfgpt.commands import (
     findfaster,
+    stacktrace,
     topn
 )
 
@@ -36,6 +37,7 @@ Performance analysis and optimisation with LLMs
 
 commands = {
     findfaster.command: findfaster,
+    stacktrace.command: stacktrace,
     topn.command: topn
 }
 
