@@ -1,5 +1,8 @@
 {
     "python.linting.flake8Enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "[markdown]": {
+        "editor.trimAutoWhitespace": false
+    }
 }
