@@ -23,6 +23,17 @@ load_dotenv()
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+ascii_name = """
+                  __                   _
+ _ __   ___ _ __ / _|       __ _ _ __ | |_
+| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
+| |_) |  __/ |  |  _|_____| (_| | |_) | |_
+| .__/ \___|_|  |_|        \__, | .__/ \__|
+|_|                        |___/|_|
+
+Performance analysis and optimisation with LLMs
+"""
+
 commands = {
     findfaster.command: findfaster,
     topn.command: topn
@@ -30,7 +41,9 @@ commands = {
 
 parser = argparse.ArgumentParser(
     prog=sys.argv[0],
-    description="Performance analysis and optimisation with LLMs"
+    description=ascii_name,
+    epilog="",
+    formatter_class=argparse.RawDescriptionHelpFormatter
 )
 parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
