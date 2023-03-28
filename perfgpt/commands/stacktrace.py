@@ -12,11 +12,17 @@ def add_to_command_parser(subparsers):
     parser.add_argument('infile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
 
 
-prompt = """You are assisting me with understanding the output of a software profiler, such
-as pprof, perf, or another profiler. I will provide you with the stack trace that consumes
-the most CPU. My goal is to optimise the software so that it runs faster and is memory efficient.
-First summarise the stack trace and explain to me what the software is doing. Then suggest actions I
-may take to optimise the software.
+prompt = """You are assisting me with understanding a stack trace from a software profiler, such
+as pprof or perf record. I will provide you with the stack trace that consumes
+the most CPU. A stack trace is a call stack, showing a list of functions that call each other.
+It is in reverse order.
+
+First, summarise what the software is doing based on the stacktrace,
+including an explanation of any bottlenecks or performance issues that are present.
+Then suggest actions I may take to fix bottlenecks or performance issues that are
+shown in the stack trace.
+
+This is the stack trace:
 
 {stacktrace}
 """
@@ -33,8 +39,7 @@ def run(args_parser, args):
         messages=[
             {
                 "role": "system",
-                "content": """You are perf-gpt, a helpful assistant for performance analysis and software
-                optimisation."""
+                "content": """You are perf-gpt, a helpful assistant."""
             },
             {
                 "role": "user",
