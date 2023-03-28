@@ -1,6 +1,6 @@
 # Examples
 
-## Finding a faster and equivalent library
+## Finding a faster, equivalent, library
 
 ```
 $ perf-gpt.py findfaster "python json"
