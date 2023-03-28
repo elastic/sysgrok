@@ -23,7 +23,7 @@ shown in the stack trace. The fixes may include replacing particular software li
 library that provides the same functionality but is optimised to be faster or more memory efficient,
 or any other optimisations that you can suggest.
 
-This is the list of most expensive functions and the libraries they are in.
+This is the list of most expensive functions and the libraries they are in:
 
 {topn}
 """
