@@ -20,11 +20,16 @@ efficient. I will provide you with the stack trace that consumes the most CPU. A
 is a call stack, showing a list of functions that call each other. The stack trace is in reverse
 order.
 
-First, summarise what the software is doing based on the stacktrace,
-including an explanation of any bottlenecks or performance issues that are present.
+First, summarise what the software is doing based on the stacktrace. Provide a technical
+description of the functions that are most likely to help a user understand what the
+stack trace is doing. In most cases this will mean explaining at least the details of the
+first three functions in the stack trace.
+
+Then outline include an explanation of any bottlenecks or performance issues that are present.
 Then, suggest actions I may take to fix bottlenecks or performance issues that are
-shown in the stack trace. For each action give a short and concise summary, then a more detailed explanation
-that includes examples to clarify what you mean. If there are multiple alternative actions then present them as a list.
+shown in the stack trace. For each action give a short and concise summary, then a more
+detailed explanation that includes examples to clarify what you mean. If there are multiple
+alternative actions then present them as a list.
 
 This is the stack trace:
 
