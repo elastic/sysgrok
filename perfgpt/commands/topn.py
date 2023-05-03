@@ -33,6 +33,8 @@ This is the list of most expensive functions and the libraries they are in:
 
 def run(args_parser, args):
     topn = args.infile.read()
+    if args.echo_input:
+        print(topn)
     temp = args.temperature
 
     completion = openai.ChatCompletion.create(

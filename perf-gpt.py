@@ -51,6 +51,9 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
+parser.add_argument("-e", "--echo-input", action="store_true",
+                    help="""Echo the input provided to perf-gpt. Useful when input is piped in
+and you want to see what it is""")
 parser.add_argument("--temperature", type=float, default=0, help="ChatGPT temperature. See OpenAI docs.")
 
 subparsers = parser.add_subparsers(help="The sub-command to execute", dest="command")
