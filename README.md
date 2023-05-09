@@ -17,6 +17,22 @@ of profiling tools more efficient at understanding their profiler output, and
 more effective in coming up with practical solutions to problems they
 encounter.
 
+# Installation 
+
+1. Create a `.env` file containing your OpenAPI key, e.g.
+
+```
+OPEN_API_KEY="..."
+```
+
+2. Install requirements via pip
+
+```
+$ python -m venv venv # Create a virtual environment 
+$ source venv/bin/activate # Activate the virtual environment
+$ pip install -r requirements.txt # Install requirements in the virtual environment
+```
+
 # Feature requests, bugs and suggestions
 
 Please log them via the Github Issues tab. If you have specific requests or bugs
