@@ -35,7 +35,7 @@ def run(args_parser, args):
     temp = args.temperature
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=args.model,
         temperature=temp,
         stream=True,
         messages=[

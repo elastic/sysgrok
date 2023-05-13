@@ -17,7 +17,7 @@ of profiling tools more efficient at understanding their profiler output, and
 more effective in coming up with practical solutions to problems they
 encounter.
 
-# Installation 
+# Installation
 
 1. Create a `.env` file containing your OpenAPI key, e.g.
 
@@ -28,7 +28,7 @@ OPEN_API_KEY="..."
 2. Install requirements via pip
 
 ```
-$ python -m venv venv # Create a virtual environment 
+$ python -m venv venv # Create a virtual environment
 $ source venv/bin/activate # Activate the virtual environment
 $ pip install -r requirements.txt # Install requirements in the virtual environment
 ```
@@ -45,8 +45,7 @@ For now, `perf-gpt` is a command line tool and takes input from profiling tools
 either via stdin or from a file. Usage is as follows:
 
 ```
-$ ./perf-gpt.py -h
-usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [--temperature TEMPERATURE] {code,findfaster,stacktrace,topn} ...
+usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {code,findfaster,stacktrace,topn} ...
 
                   __                   _
  _ __   ___ _ __ / _|       __ _ _ __ | |_
@@ -65,11 +64,14 @@ positional arguments:
     stacktrace          Summarise a stack trace and suggest changes to optimise the software
     topn                Summarise Top-N output from a profiler and suggest improvements
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose output
   -d, --debug           Debug output
   -e, --echo-input      Echo the input provided to perf-gpt. Useful when input is piped in and you want to see what it is
+  -m MODEL, --model MODEL
+                        The OpenAI model to use. Must be one of the chat completion models.
+                        See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
 ```
@@ -82,14 +84,19 @@ commands, the purpose of `perf-gpt` is two fold: firstly, help you understand
 your profiling data, and secondly help you come up with ideas for optimising
 your system.
 
-
-Note: The output of `perf-gpt` is heavily dependent on the input prompts, and
+Note 1: The output of `perf-gpt` is heavily dependent on the input prompts, and
 I am still experimenting with them. This means that the output you get from
 running `perf-gpt` may differ from what you see below. It may also vary based
 on minor differences in your input format, or the usual quirks of LLMs. If you
 have an example where the output you get from a command is incorrect or
 otherwise not helpful, please file an issue and let me know. If I can figure out
 how to get `perf-gpt` to act more usefully, I will.
+
+Note 2: The output of `perf-gpt` is also heavily dependent on the OpenAI model
+used. The default is `gpt-3.5-turbo` and these examples have been generated
+using that. See the usage docs for other options. If the results you get are not
+good enough with `gpt-3.5-turbo` then try `gpt-4`. It is slower and more
+expensive but may provide higher quality output.
 
 ## Finding faster replacement programs and libraries
 
