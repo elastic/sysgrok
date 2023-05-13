@@ -19,11 +19,7 @@ encounter.
 
 # Installation
 
-1. Create a `.env` file containing your OpenAPI key, e.g.
-
-```
-OPEN_API_KEY="..."
-```
+1. Copy `.env.example` to `.env` and fill in your OpenAI key.
 
 2. Install requirements via pip
 
