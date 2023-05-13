@@ -41,6 +41,8 @@ software_type_prompts = {
 
 def run(args_parser, args):
     target = args.target
+    if args.echo_input:
+        print(target)
     temp = args.temperature
 
     prompt = software_type_prompts[args.software_type]

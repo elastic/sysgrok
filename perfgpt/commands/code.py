@@ -30,6 +30,8 @@ The code is as follows:
 
 def run(args_parser, args):
     code = args.infile.read()
+    if args.echo_input:
+        print(code)
     temp = args.temperature
 
     completion = openai.ChatCompletion.create(

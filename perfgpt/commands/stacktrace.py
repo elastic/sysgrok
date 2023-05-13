@@ -39,6 +39,8 @@ This is the stack trace:
 
 def run(args_parser, args):
     stacktrace = args.infile.read()
+    if args.echo_input:
+        print(stacktrace)
     temp = args.temperature
 
     completion = openai.ChatCompletion.create(
