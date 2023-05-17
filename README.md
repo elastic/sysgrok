@@ -41,7 +41,7 @@ For now, `perf-gpt` is a command line tool and takes input from profiling tools
 either via stdin or from a file. Usage is as follows:
 
 ```
-usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {code,findfaster,stacktrace,topn} ...
+usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {code,explainfunction,findfaster,stacktrace,topn} ...
 
                   __                   _
  _ __   ___ _ __ / _|       __ _ _ __ | |_
@@ -53,9 +53,10 @@ usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] 
 Performance analysis and optimisation with LLMs
 
 positional arguments:
-  {code,findfaster,stacktrace,topn}
+  {code,explainfunction,findfaster,stacktrace,topn}
                         The sub-command to execute
     code                Summarise profiler-annoted code and suggest optimisations
+    explainfunction     Explain what a function does and suggest optimisations
     findfaster          Search for faster alternatives to a provided library or program
     stacktrace          Summarise a stack trace and suggest changes to optimise the software
     topn                Summarise Top-N output from a profiler and suggest improvements
@@ -66,8 +67,8 @@ options:
   -d, --debug           Debug output
   -e, --echo-input      Echo the input provided to perf-gpt. Useful when input is piped in and you want to see what it is
   -m MODEL, --model MODEL
-                        The OpenAI model to use. Must be one of the chat completion models.
-                        See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options
+                        The OpenAI model to use. Must be one of the chat completion models. See
+                        https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
 ```
