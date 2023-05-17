@@ -404,7 +404,7 @@ specific function, and for optimistion suggestions, instead of asking about
 the entire Top N.
 
 ```
-./perf-gpt.py explainfunction -s libc malloc
+$ ./perf-gpt.py explainfunction -s libc malloc
 Library description: libc is a C standard library that provides a set of
 functions for basic operations such as input/output, memory allocation,
 string manipulation, and math operations.
