@@ -394,3 +394,64 @@ actions:
     5. Use a more powerful CPU with a higher clock speed or more cores to
         improve the performance of the compression algorithm.
 ```
+
+## Explaining a specific function and suggesting optimisations
+
+If you know a particular function is using signficant CPU then, using the
+`explainfunction` command, you can ask for an explanation of that
+specific function, and for optimistion suggestions, instead of asking about
+the entire Top N.
+
+```
+./perf-gpt.py explainfunction -s libc malloc
+Library description: libc is a C standard library that provides a set of
+functions for basic operations such as input/output, memory allocation,
+string manipulation, and math operations.
+
+Library use-cases: The libc library is typically used in C programming to
+provide basic functionality for applications and system software. It is
+commonly used in operating systems, embedded systems, and other low-level
+programming tasks.
+
+Function description: The malloc function in libc is used to dynamically
+allocate memory during runtime. It takes a size parameter as input and
+returns a pointer to the allocated memory block. The allocated memory can be
+used for storing data structures, arrays, and other objects. The memory block
+is not initialized, so it may contain garbage data. The function returns
+NULL if the allocation fails. The allocated memory should be freed using
+the free function when it is no longer needed to avoid memory leaks.
+
+Here are some suggestions as to how you might optimize your system if malloc
+in libc is consuming significant CPU resources:
+
+1. Use a memory pool: Instead of calling malloc and free for each memory
+allocation and deallocation, use a memory pool to pre-allocate a fixed
+amount of memory. This can reduce the overhead of calling malloc and free
+repeatedly and improve performance. For example, you can use the memory pool
+implementation provided by the Apache Portable Runtime (APR) library.
+
+2. Use a custom allocator: Implement a custom allocator that is optimized for
+your specific use case. For example, if you know that your application
+frequently allocates and deallocates small objects, you can implement an
+allocator that uses a fixed-size block allocation scheme. This can reduce the
+overhead of calling malloc and free and improve performance.
+
+3. Use a different memory allocation library: Consider using a different
+memory allocation library that is optimized for your specific use case. For
+example, jemalloc is a memory allocation library that is designed to be
+scalable and efficient in multi-threaded environments. It can be used as a
+drop-in replacement for malloc in many cases.
+
+4. Reduce memory fragmentation: Memory fragmentation can occur when there are
+many small gaps between allocated memory blocks. This can lead to inefficient
+use of memory and increased overhead for malloc and free. To reduce memory
+fragmentation, you can use a memory allocator that supports memory
+compaction, or you can implement your own memory compaction scheme.
+
+5. Use a different data structure: If your application frequently allocates
+and deallocates objects of the same size, consider using a different data
+structure that is optimized for this use case. For example, you can use a
+memory pool allocator to allocate and deallocate objects of the same size
+more efficiently. Alternatively, you can use a slab allocator to allocate and
+deallocate objects of different sizes more efficiently.
+```
