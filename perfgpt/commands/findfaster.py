@@ -20,14 +20,19 @@ software_type_prompts = {
                 scalability and high performance? Provide a summary of {target}, then output
                 the suggested programs in a list. For each program, give a summary.
                 Suggest at most three programs. Only suggest programs that are confirmed
-                to be faster by several sources.""",
+                to be faster by several sources. For each suggestion, explain what the pros and cons
+                are in comparison to the other suggestions. At the end, recommend one of your
+                suggestions over the others and explain why. """,
     "library": """What are the fastest and most memory-efficient libraries that provide
                 the same functionality as {target}, and can be used to replace it. Specifically
                 I am interested in those that use SIMD instructions or are optimized for high
                 performance and scalability? Provide a summary of {target}, then output
                 the suggested libraries in a list. For each library, give a summary.
                 Suggest at most three libraries. Only suggest libraries that are confirmed
-                to be faster by several sources.""",
+                to be faster by several sources. For each suggestion, explain what the pros and cons
+                are in comparison to the other suggestions. At the end, recommend one of your
+                suggestions over the others and explain why you are recommending it over the other
+                suggestions.""",
     "pylibrary": """What are the fastest and most memory-efficient Python libraries that
                 provide the same functionality as Python's {target} library, and can be used to replace
                 it. Specifically I am interested in those that use SIMD instructions or are optimized
@@ -35,7 +40,9 @@ software_type_prompts = {
                 libraries that may provide better performance than pure-Python libraries. Provide a
                 summary of {target}, then output the suggested libraries in a list. For each library,
                 give a summary. Suggest at most three libraries. Only suggest libraries are confirmed
-                to be faster by several sources."""
+                to be faster by several sources. For each suggestion, explain what the pros and cons
+                are in comparison to the other suggestions. At the end, recommend one of your
+                suggestions over the others and explain why."""
 }
 
 
