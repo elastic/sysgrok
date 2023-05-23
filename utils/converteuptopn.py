@@ -13,26 +13,33 @@ i = 0
 lines = []
 
 # Data looks like this
+# 1
+# libc.so.6: _int_malloc
+# ./malloc/malloc.c#4299
+# 78
+# 0.89%
+# 1.20%
+# ~0.00 lbs / ~0.00 kg
+# ~0.00$
+# show_more_information
+# 2
+# cc1: bitmap_set_bit(bitmap_head*, int)
+# ../../src/gcc/bitmap.c#969
+# 72
+# 0.82%
+# 0.83%
+# ~0.00 lbs / ~0.00 kg
+# ~0.00$
+# show_more_information
 # 3
-# JVM/Hotspot: java.lang.String com.fasterxml.jackson.dataformat.cbor.CBORParser._finishShortText(int)
-# CBORParser.java#2258
-# 2,706,357
-# 2.38%
-# 2.40%
-# 4
-# JVM/Hotspot: org.logstash.ackedqueue.SequencedList org.logstash.ackedqueue.io.MmapPageIOV2.read(long, int)
-# MmapPageIOV2.java#113
-# 2,017,137
-# 1.77%
-# 2.43%
-# 5
-# ...
-# 7
-# vmlinux: __lock_text_start
-# vmlinux+0xaf8a54
-# 1,717,616
-# 1.51%
-# 1.51%
+# vmlinux: clear_page_erms
+# vmlinux+0x778936
+# 67
+# 0.76%
+# 0.76%
+# ~0.00 lbs / ~0.00 kg
+# ~0.00$
+# show_more_information
 
 print("# Index | Process/Library | Function | File | Self CPU | Self+Children CPU")
 while i < len(data):
@@ -43,11 +50,11 @@ while i < len(data):
         function = " ".join(process_func_line[1:])
         file = ""
     else:
-        function = " ".join(process_func_line[2:])
+        function = " ".join(process_func_line[1:])
         file = data[i+2].strip()
 
     self_cpu = data[i+4].strip()
     self_child_cpu = data[i+5].strip()
 
     print(f"{index} | {process} | {function} | {file} | {self_cpu} | {self_child_cpu}")
-    i += 6
+    i += 9
