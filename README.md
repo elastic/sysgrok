@@ -35,8 +35,8 @@ $ pip install -r requirements.txt # Install requirements in the virtual environm
 
 # Usage
 
-For now, `perf-copilot` is a command line tool and takes input from profiling tools
-either via stdin or from a file. Usage is as follows:
+For now, `perf-copilot` is a command line tool and takes input either via stdin
+or from a file, depending on the command. Usage is as follows:
 
 ```
 usage: ./perf-copilot.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
@@ -72,8 +72,6 @@ options:
                         options.
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
-
-No sub-command selected
 ```
 
 # Feature Requests, Bugs and Suggestions
