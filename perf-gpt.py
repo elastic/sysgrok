@@ -8,6 +8,7 @@
 # Email: sean@heelan.io
 
 from perfgpt.commands import (
+    analyzecmd,
     code,
     explainfunction,
     findfaster,
@@ -38,6 +39,7 @@ Performance analysis and optimisation with LLMs
 """
 
 commands = {
+    analyzecmd.command: analyzecmd,
     code.command: code,
     explainfunction.command: explainfunction,
     findfaster.command: findfaster,

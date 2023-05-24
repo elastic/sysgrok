@@ -456,3 +456,57 @@ memory pool allocator to allocate and deallocate objects of the same size
 more efficiently. Alternatively, you can use a slab allocator to allocate and
 deallocate objects of different sizes more efficiently.
 ```
+
+## Analysing command output, diagnosing issues, and suggesting remdiations
+
+The `analyzecmd` command takes as input a problem description and the output
+of one or more Linux commands. It then analyses the command output for clues
+as to the root cause of the problem, and suggest remediations.
+
+The following example is analysing the output of the `top` command, which was
+run on a host that had become unresponsive while running python tests and
+a compilation job that was using too many cores.
+
+```
+$ ./perf-gpt.py -m gpt-4 analyzecmd -p "My host has stopped responding" -i /tmp/outputs
+Analyzing output from top ...
+1. Summary of the command output:
+
+- High load average: 6.52, 1.92, 0.68
+- 16 tasks running
+- CPU usage: 90.6% user, 9.4% system
+- Memory usage: 1244.4 MiB used, 8467.4 MiB free
+- Swap: not configured
+- Multiple cc1 and python processes consuming high CPU
+
+2. Potential root causes:
+
+a) High CPU usage by multiple cc1 and python processes:
+- The output shows several cc1 and python processes consuming a significant
+amount of CPU, which could be causing the host to become unresponsive.
+- Solution: Investigate the purpose of these processes and determine if they
+are necessary. If not, terminate them or optimize their performance. If they
+are necessary, consider distributing the workload across multiple hosts or
+upgrading the host's hardware.
+
+b) High load average:
+- The load average values are high, especially the 1-minute load
+average (6.52), indicating that the system is overloaded.
+- Solution: Identify the processes causing the high load and optimize their
+performance, distribute the workload across multiple hosts, or upgrade the
+host's hardware.
+
+c) Insufficient memory:
+- Although there is still free memory available, it is possible that some
+processes are consuming more memory than expected, causing the host to
+become unresponsive.
+- Solution: Monitor memory usage over time and identify any processes with
+memory leaks or excessive memory consumption. Optimize their performance or
+consider upgrading the host's hardware.
+
+d) Swap not configured:
+- The host does not have swap configured, which could lead to issues if the
+system runs out of memory.
+- Solution: Configure swap space to provide additional memory resources in
+case the system runs out of physical memory.
+```
