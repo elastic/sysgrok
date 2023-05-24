@@ -9,10 +9,10 @@
 Performance analysis and optimisation with LLMs
 ```
 
-`perf-gpt` is an experimental proof-of-concept, intended to demonstrate how
+`perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
 LLMs can be used to understand profiling data, and assist users in coming up
 with ways to resolve performance and stability issues in their systems. The
-hypothesis being tested by `perf-gpt` is that LLMs can be used to make users
+hypothesis being tested by `perf-copilot` is that LLMs can be used to make users
 of profiling tools more efficient at understanding their profiler output, and
 more effective in coming up with practical solutions to problems they
 encounter.
@@ -31,11 +31,11 @@ $ pip install -r requirements.txt # Install requirements in the virtual environm
 
 # Usage
 
-For now, `perf-gpt` is a command line tool and takes input from profiling tools
+For now, `perf-copilot` is a command line tool and takes input from profiling tools
 either via stdin or from a file. Usage is as follows:
 
 ```
-usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
+usage: ./perf-copilot.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
 
                   __                   _
  _ __   ___ _ __ / _|       __ _ _ __ | |_
@@ -60,7 +60,7 @@ options:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose output
   -d, --debug           Debug output
-  -e, --echo-input      Echo the input provided to perf-gpt. Useful when input is piped in and you want to see what it is
+  -e, --echo-input      Echo the input provided to perf-copilot. Useful when input is piped in and you want to see what it is
   -m MODEL, --model MODEL
                         The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid
                         options.
@@ -77,7 +77,7 @@ ideas.
 # Adding a New Command
 
 Adding a new command is easy. You need to:
-1. Create a file, yourcommand.py, in the `perfgpt/commands` directory. It's
+1. Create a file, yourcommand.py, in the `perfcopilot/commands` directory. It's
 likely easiest to just copy an existing command, e.g. `stacktrace.py`
 2. Your command file needs to have the following components:
     * A top level `command` variable which is the name users will use to invoke
@@ -90,7 +90,7 @@ likely easiest to just copy an existing command, e.g. `stacktrace.py`
     * A `run` function that is the interface to your command. It will be the
     function that creates the LLM queries and produces a result. It should
     return 0 upon success, or -1 otherwise.
-3. Update `perf-gpt.py`:
+3. Update `perf-copilot.py`:
     * Add your command to the imports
     * Add your command to the `commands` dict.
 
@@ -172,21 +172,21 @@ just running the `explainfunction` command on each entry in the Top N.
 
 # Examples
 
-The following has some examples of how to use `perf-gpt` to solve common
+The following has some examples of how to use `perf-copilot` to solve common
 problems that come up when profiling and optimising a system. Across all
-commands, the purpose of `perf-gpt` is two fold: firstly, help you understand
+commands, the purpose of `perf-copilot` is two fold: firstly, help you understand
 your profiling data, and secondly help you come up with ideas for optimising
 your system.
 
-Note 1: The output of `perf-gpt` is heavily dependent on the input prompts, and
+Note 1: The output of `perf-copilot` is heavily dependent on the input prompts, and
 I am still experimenting with them. This means that the output you get from
-running `perf-gpt` may differ from what you see below. It may also vary based
+running `perf-copilot` may differ from what you see below. It may also vary based
 on minor differences in your input format, or the usual quirks of LLMs. If you
 have an example where the output you get from a command is incorrect or
 otherwise not helpful, please file an issue and let me know. If I can figure out
-how to get `perf-gpt` to act more usefully, I will.
+how to get `perf-copilot` to act more usefully, I will.
 
-Note 2: The output of `perf-gpt` is also heavily dependent on the OpenAI model
+Note 2: The output of `perf-copilot` is also heavily dependent on the OpenAI model
 used. The default is `gpt-3.5-turbo` and these examples have been generated
 using that. See the usage docs for other options. If the results you get are not
 good enough with `gpt-3.5-turbo` then try `gpt-4`. It is slower and more
@@ -204,7 +204,7 @@ for you. Here are some examples.
 ### Finding a faster replacement for gzip
 
 ```
-./perf-gpt.py findfaster gzip
+./perf-copilot.py findfaster gzip
 gzip is a file compression utility that uses the DEFLATE algorithm. It is
 widely used and supported on most platforms. However, it is not the fastest
 or most memory-efficient compression library available.
@@ -234,7 +234,7 @@ content.
 ### Finding a faster replacement for Python's JSON library
 
 ```
-$ perf-gpt.py findfaster "python json"
+$ perf-copilot.py findfaster "python json"
 Python json is a built-in module that provides methods for encoding and
 decoding JSON data. It is a widely used library for working with JSON data
 in Python. However, it may not be the most performant or memory-efficient
@@ -278,7 +278,7 @@ In this first example we copy and paste a stacktrace directly from the
 Elastic Universal Profiler UI.
 
 ```
-$ perf-gpt.py stacktrace
+$ perf-copilot.py stacktrace
 vmlinux: copy_user_enhanced_fast_string
 vmlinux+0xa1fc2d
 18
@@ -353,7 +353,7 @@ In this second example, we will copy and paste in a stack trace from the `perf`
 tool.
 
 ```
-$ ./perf-gpt.py stacktrace
+$ ./perf-copilot.py stacktrace
 -   64.57%  gzip     gzip                                 [.] longest_match
    - 64.44% longest_match
       - 64.10% zip
@@ -418,17 +418,17 @@ world of whole-system, or whole-data-center, profiling, where there are a
 huge number of programs and libraries running, and you are often unfamiliar
 with many of them.
 
-The `perf-gpt topn` command helps with this. Provide it with your Top-N, and
+The `perf-copilot topn` command helps with this. Provide it with your Top-N, and
 it will try to summarise what each program, library and function is doing, as
 well as providing you with some suggestions as to what you might do to
 optimise your system. In the following we paste in some data from `perf`, but
 you could also copy/paste from your favourite commercial profiler of choice.
 The ideal format is similar to perfs, with a header line describing each
-column, followed by the data, but `perf-gpt` will make a fair attempt at
+column, followed by the data, but `perf-copilot` will make a fair attempt at
 interpreting the data even if it doesn't follow this exact format.
 
 ```
-$ ./perf-gpt.py topn
+$ ./perf-copilot.py topn
 # Children      Self  Command  Shared Object  Symbol
 # ........  ........  .......  .............  ......
 #
@@ -501,7 +501,7 @@ specific function, and for optimistion suggestions, instead of asking about
 the entire Top N.
 
 ```
-$ ./perf-gpt.py explainfunction -s libc malloc
+$ ./perf-copilot.py explainfunction -s libc malloc
 Library description: libc is a C standard library that provides a set of
 functions for basic operations such as input/output, memory allocation,
 string manipulation, and math operations.
@@ -565,7 +565,7 @@ run on a host that had become unresponsive while running python tests and
 a compilation job that was using too many cores.
 
 ```
-$ ./perf-gpt.py -m gpt-4 analyzecmd -p "My host has stopped responding" -i /tmp/outputs
+$ ./perf-copilot.py -m gpt-4 analyzecmd -p "My host has stopped responding" -i /tmp/outputs
 Analyzing output from top ...
 1. Summary of the command output:
 

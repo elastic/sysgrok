@@ -43,7 +43,7 @@ def analyze_cmd(cmd, cmd_output, args):
         messages=[
             {
                 "role": "system",
-                "content": """You are perf-gpt, a helpful assistant for performance analysis and optimisation
+                "content": """You are perf-copilot, a helpful assistant for performance analysis and optimisation
                 of software. Answer as concisely as possible."""
             },
             {

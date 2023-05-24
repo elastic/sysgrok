@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-# perf-gpt is an experimental tool for performance analysis and optimisation
+# perf-copilot is an experimental tool for performance analysis and optimisation
 # using LLMs. Its purpose is to take data from existing profilers and provide
 # the user with helpful summaries, advice and direction.
 #
 # Author: Sean Heelan
 # Email: sean@heelan.io
 
-from perfgpt.commands import (
+from perfcopilot.commands import (
     analyzecmd,
     code,
     explainfunction,
@@ -28,12 +28,14 @@ load_dotenv()
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 ascii_name = """
-                  __                   _
- _ __   ___ _ __ / _|       __ _ _ __ | |_
-| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
-| |_) |  __/ |  |  _|_____| (_| | |_) | |_
-| .__/ \___|_|  |_|        \__, | .__/ \__|
-|_|                        |___/|_|
+                  __                       _ _       _
+                 / _|                     (_) |     | |
+ _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
+| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
+| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
+| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
+| |                                 | |
+|_|                                 |_|
 
 Performance analysis and optimisation with LLMs
 """
@@ -56,7 +58,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
 parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
 parser.add_argument("-e", "--echo-input", action="store_true",
-                    help="""Echo the input provided to perf-gpt. Useful when input is piped in
+                    help="""Echo the input provided to perf-copilot. Useful when input is piped in
 and you want to see what it is""")
 parser.add_argument("-m", "--model", default="gpt-3.5-turbo",
                     help="""The OpenAI model to use. Must be one of the chat completion models.

@@ -50,7 +50,7 @@ def run(args_parser, args):
         messages=[
             {
                 "role": "system",
-                "content": """You are perf-gpt, a helpful assistant."""
+                "content": """You are perf-copilot, a helpful assistant."""
             },
             {
                 "role": "user",
