@@ -55,6 +55,73 @@ likely easiest to just copy an existing command, e.g. `stacktrace.py`
     * Add your command to the imports
     * Add your command to the `commands` dict.
 
+# Command Overview
+
+*NOTE: Even the commands listed here as working and ready for integration into our
+product suite should be treated as still highly experimental! "Working" means that
+in their current state I think they can probably provide value to customers, and in
+its current state, the prompt for the command can be used as is. However, ALL of the
+commands need much more real world evaluation and testing, and all of the prompts can
+still be improved.*
+
+*When embedding any of this into our products we MUST make users aware that the content
+is LLM generated, and is potentially misleading. We should also give them some way to
+give us feedback, so we can improve over time.*
+
+### analyzecmd
+
+**Description:** Takes the output of one or more CLI tools, and a problem description.
+Attempts to find the root cause of the problem and suggest remediations.
+**Status:** PoC. Little evaluation and testing. In need of evaluation on real problems.
+**Open Issues:**
+
+### code
+
+**Description:** Takes source code that has been annotated by a profiler to indicate
+hot paths. Attempts to describe what is happening on those hot paths and suggest
+remediations.
+**Status:** PoC. Little evaluation and testing. In need of evaluation on real problems.
+**Open Issues:**
+
+
+### explainfunction
+
+**Description:** Takes the name of a function and a library. Explains the library and
+it's use-cases, explains the function, and then suggest actions the user may take to
+improve the performance of their system if the function is consuming significant
+resources.
+**Status:** Works, and can solve real problems. Ready for integration into our product
+suite for further testing.
+**Open Issues:**
+
+### findfaster
+
+**Description:** Takes the name of a function and a library. Suggests replacement
+libraries that may be more efficient.
+**Status:** Works, and can solve real problems. Ready for integration into our product
+suite for further testing.
+**Open Issues:**
+
+### stacktrace
+
+**Description:** Takes a stack trace. Summarises the stack trace and suggests optimisations
+under the assumption the stack trace consumes significant CPU.
+**Status:** Works, and can solve real problems, but the prompt needs work to give
+more repeatable, useful output. We also need to test this more on some real problems
+to see if the output is really useful to a user.
+**Open Issues:**
+
+
+## topn
+
+**Description:** Takes the Top N most expensive functions in your infrastructure,
+summarises each function and library, and then suggests optimisations.
+**Status:** Works, and can solve real problems, but the prompt needs work to give
+more repeatable, useful output. We also need to test this more on some real problems
+to see if the output is really useful to a user. I am not sure it is more useful than
+just running the `explainfunction` command on each entry in the Top N.
+**Open Issues:**
+
 # Usage Examples
 
 For now, `perf-gpt` is a command line tool and takes input from profiling tools
