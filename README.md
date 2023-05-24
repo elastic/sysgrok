@@ -29,6 +29,45 @@ $ source venv/bin/activate # Activate the virtual environment
 $ pip install -r requirements.txt # Install requirements in the virtual environment
 ```
 
+# Usage
+
+For now, `perf-gpt` is a command line tool and takes input from profiling tools
+either via stdin or from a file. Usage is as follows:
+
+```
+usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
+
+                  __                   _
+ _ __   ___ _ __ / _|       __ _ _ __ | |_
+| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
+| |_) |  __/ |  |  _|_____| (_| | |_) | |_
+| .__/ \___|_|  |_|        \__, | .__/ \__|
+|_|                        |___/|_|
+
+Performance analysis and optimisation with LLMs
+
+positional arguments:
+  {analyzecmd,code,explainfunction,findfaster,stacktrace,topn}
+                        The sub-command to execute
+    analyzecmd          Execute
+    code                Summarise profiler-annoted code and suggest optimisations
+    explainfunction     Explain what a function does and suggest optimisations
+    findfaster          Search for faster alternatives to a provided library or program
+    stacktrace          Summarise a stack trace and suggest changes to optimise the software
+    topn                Summarise Top-N output from a profiler and suggest improvements
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Verbose output
+  -d, --debug           Debug output
+  -e, --echo-input      Echo the input provided to perf-gpt. Useful when input is piped in and you want to see what it is
+  -m MODEL, --model MODEL
+                        The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid
+                        options.
+  --temperature TEMPERATURE
+                        ChatGPT temperature. See OpenAI docs.
+```
+
 # Feature Requests, Bugs and Suggestions
 
 Please log them via the Github Issues tab. If you have specific requests or bugs
@@ -121,45 +160,6 @@ more repeatable, useful output. We also need to test this more on some real prob
 to see if the output is really useful to a user. I am not sure it is more useful than
 just running the `explainfunction` command on each entry in the Top N.
 **Open Issues:**
-
-# Usage Examples
-
-For now, `perf-gpt` is a command line tool and takes input from profiling tools
-either via stdin or from a file. Usage is as follows:
-
-```
-usage: ./perf-gpt.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
-
-                  __                   _
- _ __   ___ _ __ / _|       __ _ _ __ | |_
-| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
-| |_) |  __/ |  |  _|_____| (_| | |_) | |_
-| .__/ \___|_|  |_|        \__, | .__/ \__|
-|_|                        |___/|_|
-
-Performance analysis and optimisation with LLMs
-
-positional arguments:
-  {analyzecmd,code,explainfunction,findfaster,stacktrace,topn}
-                        The sub-command to execute
-    analyzecmd          Execute
-    code                Summarise profiler-annoted code and suggest optimisations
-    explainfunction     Explain what a function does and suggest optimisations
-    findfaster          Search for faster alternatives to a provided library or program
-    stacktrace          Summarise a stack trace and suggest changes to optimise the software
-    topn                Summarise Top-N output from a profiler and suggest improvements
-
-options:
-  -h, --help            show this help message and exit
-  -v, --verbose         Verbose output
-  -d, --debug           Debug output
-  -e, --echo-input      Echo the input provided to perf-gpt. Useful when input is piped in and you want to see what it is
-  -m MODEL, --model MODEL
-                        The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid
-                        options.
-  --temperature TEMPERATURE
-                        ChatGPT temperature. See OpenAI docs.
-```
 
 # Examples
 
