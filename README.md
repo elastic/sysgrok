@@ -1,10 +1,12 @@
 ```
-                  __                   _
- _ __   ___ _ __ / _|       __ _ _ __ | |_
-| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
-| |_) |  __/ |  |  _|_____| (_| | |_) | |_
-| .__/ \___|_|  |_|        \__, | .__/ \__|
-|_|                        |___/|_|
+                  __                       _ _       _
+                 / _|                     (_) |     | |
+ _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
+| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
+| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
+| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
+| |                                 | |
+|_|                                 |_|
 
 Performance analysis and optimisation with LLMs
 ```
@@ -37,19 +39,21 @@ either via stdin or from a file. Usage is as follows:
 ```
 usage: ./perf-copilot.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
 
-                  __                   _
- _ __   ___ _ __ / _|       __ _ _ __ | |_
-| '_ \ / _ \ '__| |_ _____ / _` | '_ \| __|
-| |_) |  __/ |  |  _|_____| (_| | |_) | |_
-| .__/ \___|_|  |_|        \__, | .__/ \__|
-|_|                        |___/|_|
+                  __                       _ _       _
+                 / _|                     (_) |     | |
+ _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
+| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
+| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
+| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
+| |                                 | |
+|_|                                 |_|
 
 Performance analysis and optimisation with LLMs
 
 positional arguments:
   {analyzecmd,code,explainfunction,findfaster,stacktrace,topn}
                         The sub-command to execute
-    analyzecmd          Execute
+    analyzecmd          Analyze the output of CLI tools to find the root cause of an issue and suggest remediations
     code                Summarise profiler-annoted code and suggest optimisations
     explainfunction     Explain what a function does and suggest optimisations
     findfaster          Search for faster alternatives to a provided library or program
@@ -66,6 +70,8 @@ options:
                         options.
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
+
+No sub-command selected
 ```
 
 # Feature Requests, Bugs and Suggestions
