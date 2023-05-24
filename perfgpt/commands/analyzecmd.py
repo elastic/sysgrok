@@ -6,8 +6,6 @@ import openai
 command = "analyzecmd"
 help = "Analyze the output of CLI tools to find the root cause of an issue and suggest remediations"
 
-# ToDo allow user to just provide the problem, and suggest some commands to run.
-
 
 def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
