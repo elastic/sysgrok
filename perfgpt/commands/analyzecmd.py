@@ -4,7 +4,7 @@ import sys
 import openai
 
 command = "analyzecmd"
-help = "Execute "
+help = "Analyze the output of CLI tools to find the root cause of an issue and suggest remediations"
 
 # ToDo allow user to just provide the problem, and suggest some commands to run.
 
