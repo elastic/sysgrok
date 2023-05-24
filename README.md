@@ -107,11 +107,13 @@ still be improved.*
 is LLM generated, and is potentially misleading. We should also give them some way to
 give us feedback, so we can improve over time.*
 
-### analyzecmd
+## analyzecmd
 
 **Description:** Takes the output of one or more CLI tools, and a problem description.
 Attempts to find the root cause of the problem and suggest remediations.
+
 **Status:** PoC. Little evaluation and testing. In need of evaluation on real problems.
+
 **Open Issues:**
 
 ### code
@@ -119,11 +121,13 @@ Attempts to find the root cause of the problem and suggest remediations.
 **Description:** Takes source code that has been annotated by a profiler to indicate
 hot paths. Attempts to describe what is happening on those hot paths and suggest
 remediations.
+
 **Status:** PoC. Little evaluation and testing. In need of evaluation on real problems.
+
 **Open Issues:**
 
 
-### explainfunction
+## explainfunction
 
 **Description:** Takes the name of a function and a library. Explains the library and
 it's use-cases, explains the function, and then suggest actions the user may take to
@@ -133,32 +137,37 @@ resources.
 suite for further testing.
 **Open Issues:**
 
-### findfaster
+## findfaster
 
 **Description:** Takes the name of a function and a library. Suggests replacement
 libraries that may be more efficient.
+
 **Status:** Works, and can solve real problems. Ready for integration into our product
 suite for further testing.
+
 **Open Issues:**
 
-### stacktrace
+## stacktrace
 
 **Description:** Takes a stack trace. Summarises the stack trace and suggests optimisations
 under the assumption the stack trace consumes significant CPU.
+
 **Status:** Works, and can solve real problems, but the prompt needs work to give
 more repeatable, useful output. We also need to test this more on some real problems
 to see if the output is really useful to a user.
-**Open Issues:**
 
+**Open Issues:**
 
 ## topn
 
 **Description:** Takes the Top N most expensive functions in your infrastructure,
 summarises each function and library, and then suggests optimisations.
+
 **Status:** Works, and can solve real problems, but the prompt needs work to give
 more repeatable, useful output. We also need to test this more on some real problems
 to see if the output is really useful to a user. I am not sure it is more useful than
 just running the `explainfunction` command on each entry in the Top N.
+
 **Open Issues:**
 
 # Examples
