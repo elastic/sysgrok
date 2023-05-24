@@ -9,6 +9,8 @@
 |_|                                 |_|
 
 Performance analysis and optimisation with LLMs
+
+Contact: sean.heelan@elastic.co
 ```
 
 `perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
