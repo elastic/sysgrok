@@ -29,13 +29,33 @@ $ source venv/bin/activate # Activate the virtual environment
 $ pip install -r requirements.txt # Install requirements in the virtual environment
 ```
 
-# Feature requests, bugs and suggestions
+# Feature Requests, Bugs and Suggestions
 
 Please log them via the Github Issues tab. If you have specific requests or bugs
 then great, but I'm also happy to discuss open-ended topics, future work, and
 ideas.
 
-# Usage
+# Adding a New Command
+
+Adding a new command is easy. You need to:
+1. Create a file, yourcommand.py, in the `perfgpt/commands` directory. It's
+likely easiest to just copy an existing command, e.g. `stacktrace.py`
+2. Your command file needs to have the following components:
+    * A top level `command` variable which is the name users will use to invoke
+    your command
+    * A top level `help` variable describing the command, and which will appear
+    when the `-h` flag is passed.
+    * A `add_to_command_subparsers` function which should add a sub-parser
+    which will handle the command line arguments that are specific to your
+    command.
+    * A `run` function that is the interface to your command. It will be the
+    function that creates the LLM queries and produces a result. It should
+    return 0 upon success, or -1 otherwise.
+3. Update `perf-gpt.py`:
+    * Add your command to the imports
+    * Add your command to the `commands` dict.
+
+# Usage Examples
 
 For now, `perf-gpt` is a command line tool and takes input from profiling tools
 either via stdin or from a file. Usage is as follows:
