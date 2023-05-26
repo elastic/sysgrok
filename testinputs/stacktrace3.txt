@@ -1,0 +1,8 @@
+# Index | Process/Library | Function | File
+7 | libc.so.6 | __random | ./stdlib/random.c
+6 | libc.so.6 | rand | ./stdlib/rand.c
+5 | sum_random_bufs | gen_random_buffer(unsigned long) | /home/ubuntu/sum_random_bufs.cpp
+4 | sum_random_bufs | main | /home/ubuntu/sum_random_bufs.cpp
+3 | libc.so.6 | __libc_start_call_main | ../sysdeps/nptl/libc_start_call_main.h
+2 | libc.so.6 | __libc_start_main_impl | ../csu/libc-start.c
+1 | sum_random_bufs | Unknown function | Unknown file

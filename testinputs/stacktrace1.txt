@@ -1,0 +1,17 @@
+# Index | Process/Library | Function | File
+16 | vmlinux | __clear_user | Unknown file
+15 | vmlinux | clear_user | Unknown file
+14 | vmlinux | read_zero | Unknown file
+13 | vmlinux | vfs_read | Unknown file
+12 | vmlinux | ksys_read | Unknown file
+11 | vmlinux | __x64_sys_read | Unknown file
+10 | vmlinux | do_syscall_64 | Unknown file
+9 | vmlinux | entry_SYSCALL_64_after_hwframe | Unknown file
+8 | libc.so.6 | Unknown function | Unknown file
+7 | libc.so.6 | __GI__IO_file_xsgetn | ./libio/fileops.c
+6 | libc.so.6 | __GI___fread_unlocked | ./libio/iofread_u.c
+5 | sha1sum | digest_file | src/md5sum.c
+4 | sha1sum | main | src/md5sum.c
+3 | libc.so.6 | __libc_start_call_main | ../sysdeps/nptl/libc_start_call_main.h
+2 | libc.so.6 | __libc_start_main_impl | ../csu/libc-start.c
+1 | sha1sum | Unknown function | Unknown file

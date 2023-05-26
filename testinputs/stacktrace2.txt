@@ -1,0 +1,14 @@
+# Index | Process/Library | Function | File
+13 | python3.10 | deduce_unreachable | ../Modules/gcmodule.c
+12 | python3.10 | gc_collect_main | ../Modules/gcmodule.c
+11 | python3.10 | gc_collect_with_callback | ../Modules/gcmodule.c
+10 | python3.10 | _PyObject_GC_NewVar | ../Modules/gcmodule.c
+9 | python3.10 | PyTuple_New | ../Objects/tupleobject.c
+8 | python3.10 | PyDict_Items | ../Objects/dictobject.c
+7 | _json.cpython-310-x86_64-linux-gnu.so | encoder_listencode_obj | ./Modules/_json.c
+6 | _json.cpython-310-x86_64-linux-gnu.so | encoder_call | ./Modules/_json.c
+5 | python3.10 | _PyObject_MakeTpCall | ../Objects/call.c
+4 | Python | iterencode | encoder.py
+3 | Python | encode | encoder.py
+2 | Python | dumps | __init__.py
+1 | Python | <module> | <stdin>
