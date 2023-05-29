@@ -3,6 +3,8 @@ import sys
 
 import openai
 
+from .shared import get_base_messages
+
 command = "code"
 help = "Summarise profiler-annoted code and suggest optimisations"
 
@@ -32,22 +34,18 @@ def run(args_parser, args):
     code = args.infile.read()
     if args.echo_input:
         print(code)
-    temp = args.temperature
+
+    messages = get_base_messages()
+    messages.append({
+        "role": "user",
+        "content": prompt.format(code=code)
+    })
 
     completion = openai.ChatCompletion.create(
         model=args.model,
-        temperature=temp,
+        temperature=args.temperature,
         stream=True,
-        messages=[
-            {
-                "role": "system",
-                "content": """You are perf-copilot, a helpful assistant."""
-            },
-            {
-                "role": "user",
-                "content": prompt.format(code=code)
-            }
-        ]
+        messages=messages
     )
 
     wrote_reply = False

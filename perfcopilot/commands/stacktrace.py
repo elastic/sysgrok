@@ -3,6 +3,8 @@ import sys
 
 import openai
 
+from .shared import get_base_messages
+
 command = "stacktrace"
 help = "Summarise a stack trace and suggest changes to optimise the software"
 
@@ -66,22 +68,18 @@ def run(args_parser, args):
     stacktrace = args.infile.read()
     if args.echo_input:
         print(stacktrace)
-    temp = args.temperature
+
+    messages = get_base_messages()
+    messages.append({
+        "role": "user",
+        "content": prompt.format(stacktrace=stacktrace)
+    })
 
     completion = openai.ChatCompletion.create(
         model=args.model,
-        temperature=temp,
+        temperature=args.temperature,
         stream=True,
-        messages=[
-            {
-                "role": "system",
-                "content": """You are perf-copilot, a helpful assistant."""
-            },
-            {
-                "role": "user",
-                "content": prompt.format(stacktrace=stacktrace)
-            }
-        ]
+        messages=messages
     )
 
     wrote_reply = False

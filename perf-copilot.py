@@ -60,6 +60,13 @@ parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
 parser.add_argument("-e", "--echo-input", action="store_true",
                     help="""Echo the input provided to perf-copilot. Useful when input is piped in
 and you want to see what it is""")
+
+format_group = parser.add_mutually_exclusive_group()
+format_group.add_argument("--output-markdown", action="store_true",
+                          help="Ask the LLM to format its output as markdown")
+format_group.add_argument("--output-html", action="store_true",
+                          help="Ask the LLM to format its output as HTML")
+
 parser.add_argument("-m", "--model", default="gpt-3.5-turbo",
                     help="""The OpenAI model to use. Must be one of the chat completion models.
 See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.""")

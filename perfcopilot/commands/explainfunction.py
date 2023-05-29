@@ -2,6 +2,8 @@ import sys
 
 import openai
 
+from .shared import get_base_messages
+
 command = "explainfunction"
 help = "Explain what a function does and suggest optimisations"
 
@@ -68,16 +70,12 @@ def run(args_parser, args):
     if args.echo_input:
         print(f"{args.lib} {args.func}")
 
-    messages = [
-            {
-                "role": "system",
-                "content": """You are perf-copilot, a helpful assistant for performance analysis and optimisation
-                of software. Answer as concisely as possible. """
-            },
-            {
-                "role": "user",
-                "content": explain_prompt.format(library=args.library, function=args.function)
-            }]
+    messages = get_base_messages()
+    messages.append({
+        "role": "user",
+        "content": explain_prompt.format(library=args.library, function=args.function)
+    })
+
     completion = openai.ChatCompletion.create(
         model=args.model,
         temperature=args.temperature,

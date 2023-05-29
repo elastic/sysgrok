@@ -3,6 +3,8 @@ import sys
 
 import openai
 
+from .shared import get_base_messages
+
 command = "analyzecmd"
 help = "Analyze the output of CLI tools to find the root cause of an issue and suggest remediations"
 
@@ -36,21 +38,17 @@ The output of the {cmd} is as follows:
 def analyze_cmd(cmd, cmd_output, args):
     print(f"Analyzing output from {cmd} ...")
 
+    messages = get_base_messages()
+    messages.append({
+        "role": "user",
+        "content": prompt.format(problem=args.problem_description, cmd=cmd, cmd_output=cmd_output)
+    })
+
     completion = openai.ChatCompletion.create(
         model=args.model,
         temperature=args.temperature,
         stream=True,
-        messages=[
-            {
-                "role": "system",
-                "content": """You are perf-copilot, a helpful assistant for performance analysis and optimisation
-                of software. Answer as concisely as possible."""
-            },
-            {
-                "role": "user",
-                "content": prompt.format(problem=args.problem_description, cmd=cmd, cmd_output=cmd_output)
-            }
-        ]
+        messages=messages
     )
 
     wrote_reply = False

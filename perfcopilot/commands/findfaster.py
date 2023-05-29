@@ -2,6 +2,8 @@ import sys
 
 import openai
 
+from .shared import get_base_messages
+
 command = "findfaster"
 help = "Search for faster alternatives to a provided library or program"
 
@@ -50,25 +52,20 @@ def run(args_parser, args):
     target = args.target
     if args.echo_input:
         print(target)
-    temp = args.temperature
 
     prompt = software_type_prompts[args.software_type]
 
+    messages = get_base_messages()
+    messages.append({
+        "role": "user",
+        "content": prompt.format(target=target)
+        })
+
     completion = openai.ChatCompletion.create(
         model=args.model,
-        temperature=temp,
+        temperature=args.temperature,
         stream=True,
-        messages=[
-            {
-                "role": "system",
-                "content": """You are perf-copilot, a helpful assistant for performance analysis and optimisation
-                of software. Answer as concisely as possible."""
-            },
-            {
-                "role": "user",
-                "content": prompt.format(target=target)
-            }
-        ]
+        messages=messages
     )
 
     wrote_reply = False
