@@ -51,8 +51,7 @@ the Linux kernel.
 
 If you know of fewer than five ways to improve the performance the system, then provide fewer
 than five suggestions. If you do not know of any way in which to improve the performance then
-say "I do not know how to improve the performance of systems where this stack trace is consuming
-a significant amount of CPU".
+say "No optimisation suggestions available".
 
 Do not suggest to use a CPU profiler or to profile the code. I have already profiled the code
 using a CPU profiler. You should favour stopping making suggestions over suggesting profiling
