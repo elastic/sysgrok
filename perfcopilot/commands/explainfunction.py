@@ -70,7 +70,7 @@ def run(args_parser, args):
     if args.echo_input:
         print(f"{args.lib} {args.func}")
 
-    messages = get_base_messages()
+    messages = get_base_messages(args)
     messages.append({
         "role": "user",
         "content": explain_prompt.format(library=args.library, function=args.function)

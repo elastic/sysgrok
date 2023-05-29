@@ -77,7 +77,7 @@ def run(args_parser, args):
     if args.echo_input:
         print(topn)
 
-    messages = get_base_messages()
+    messages = get_base_messages(args)
     messages.append({
         "role": "user",
         "content": prompt.format(topn=topn)

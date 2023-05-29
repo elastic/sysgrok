@@ -55,7 +55,7 @@ def run(args_parser, args):
 
     prompt = software_type_prompts[args.software_type]
 
-    messages = get_base_messages()
+    messages = get_base_messages(args)
     messages.append({
         "role": "user",
         "content": prompt.format(target=target)

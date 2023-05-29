@@ -38,7 +38,7 @@ The output of the {cmd} is as follows:
 def analyze_cmd(cmd, cmd_output, args):
     print(f"Analyzing output from {cmd} ...")
 
-    messages = get_base_messages()
+    messages = get_base_messages(args)
     messages.append({
         "role": "user",
         "content": prompt.format(problem=args.problem_description, cmd=cmd, cmd_output=cmd_output)

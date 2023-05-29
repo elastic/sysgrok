@@ -35,7 +35,7 @@ def run(args_parser, args):
     if args.echo_input:
         print(code)
 
-    messages = get_base_messages()
+    messages = get_base_messages(args)
     messages.append({
         "role": "user",
         "content": prompt.format(code=code)
