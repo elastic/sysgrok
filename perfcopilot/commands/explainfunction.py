@@ -10,8 +10,8 @@ help = "Explain what a function does and suggest optimisations"
 
 def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
-    parser.add_argument("-s", "--suggest-optimisations", action='store_true', default=False,
-                        help="Suggest optimisations for applications where this function is consuming significant CPU")
+    parser.add_argument("--no-optimisations", action='store_true', default=False,
+                        help="Do not suggest optimisations")
     parser.add_argument("library", help="The library or program containing the function")
     parser.add_argument("function", help="The name of the function, or the full function signature")
 
@@ -95,7 +95,7 @@ def run(args_parser, args):
     if explanation:
         sys.stdout.write("\n")
 
-    if not args.suggest_optimisations:
+    if args.no_optimisations:
         return 0
 
     messages.extend([
