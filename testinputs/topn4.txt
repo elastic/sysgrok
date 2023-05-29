@@ -1,0 +1,11 @@
+# Index | Process/Library | Function | File | Self CPU | Self+Children CPU
+1 | cc1 | find_base_term | ../../src/gcc/alias.c#2121 | 1.98% | 1.98%
+2 | cc1 | get_ref_base_and_extent(tree_node*, poly_int_pod*, poly_int_pod*, poly_int_pod*, bool*) | ../../src/gcc/tree-dfa.c#508 | 1.62% | 1.84%
+3 | cc1 | bitmap_set_bit(bitmap_head*, int) | ../../src/gcc/bitmap.c#955 | 1.47% | 1.53%
+4 | libc.so.6 | _int_malloc | ./malloc/malloc.c#3983 | 1.46% | 2.16%
+5 | cc1 | compute_transp(rtx_def const*, int, simple_bitmap_def**, bitmap_head*, bitmap_head*, vec*) | ../../src/gcc/gcse-common.c#175 | 0.95% | 4.77%
+6 | vmlinux | clear_page_erms |  | 0.89% | 0.89%
+7 | libc.so.6 | _int_free | ./malloc/malloc.c#4702 | 0.89% | 0.98%
+8 | libc.so.6 | __GI___libc_malloc | ./malloc/malloc.c#3319 | 0.76% | 2.44%
+9 | cc1 | bitmap_clear_bit(bitmap_head*, int) | ../../src/gcc/bitmap.c#936 | 0.71% | 0.71%
+10 | cc1 | ggc_internal_alloc(unsigned long, void (*)(void*), unsigned long, unsigned long) | ../../src/gcc/ggc-page.c#1294 | 0.67% | 0.80%

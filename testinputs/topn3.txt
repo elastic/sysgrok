@@ -1,0 +1,12 @@
+# Index | Process/Library | Function | File | Self CPU | Self+Children CPU
+1 | vmlinux | do_user_addr_fault |  | 4.83% | 15.86%
+2 | vmlinux | clear_page_erms |  | 4.14% | 4.14%
+3 | vmlinux | _compound_head |  | 2.76% | 2.76%
+4 | vmlinux | __check_heap_object |  | 2.76% | 2.76%
+5 | libc.so.6 | __GI___libc_malloc | ./malloc/malloc.c#3313 | 2.76% | 3.45%
+6 | vmlinux | _raw_spin_unlock_irqrestore |  | 2.07% | 2.07%
+7 | vmlinux | vm_area_dup |  | 1.38% | 1.38%
+8 | vmlinux | release_task |  | 1.38% | 1.38%
+9 | vmlinux | find_vma |  | 1.38% | 1.38%
+10 | libc.so.6 | __GI___pthread_sigmask | ./nptl/pthread_sigmask.c#45 | 1.38% | 1.38%
+11 | bash | hash_search | .././hashlib.c#267 | 1.38% | 1.38%

@@ -1,0 +1,11 @@
+# Index | Process/Library | Function | File | Self CPU | Self+Children CPU
+1 | sha1sum | sha1_process_block | lib/sha1.c#436 | 3.18% | 3.18%
+2 | libc.so.6 | __random | ./stdlib/random.c#295 | 2.43% | 2.79%
+3 | python | _PyEval_EvalFrameDefault | Python/bytecodes.c#2643 | 1.72% | 32.87%
+4 | python | gc_collect_main | Modules/gcmodule.c#1303 | 1.54% | 4.58%
+5 | python | _PyEval_EvalFrameDefault | Python/generated_cases.c.h#3539 | 0.95% | 2.55%
+6 | python3.10 | gc_collect_main | ../Modules/gcmodule.c#1239 | 0.82% | 2.56%
+7 | vmlinux | clear_page_erms |  | 0.78% | 0.78%
+8 | libc.so.6 | _int_malloc | ./malloc/malloc.c#4299 | 0.68% | 0.96%
+9 | python | visit_decref | Modules/gcmodule.c#465 | 0.66% | 0.68%
+10 | python3.10 | deduce_unreachable | ../Modules/gcmodule.c#1143 | 0.64% | 1.72%

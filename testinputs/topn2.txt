@@ -1,0 +1,9 @@
+# Index | Process/Library | Function | File | Self CPU | Self+Children CPU
+1 | sha256sum | sha256_process_block | lib/sha256.c#500 | 52.95% | 52.95%
+2 | python3.10 | long_to_decimal_string_internal | ../Objects/longobject.c#1622 | 3.82% | 4.64%
+3 | Python | <module> | dojson.py#3 | 2.15% | 35.56%
+4 | vmlinux | copy_user_enhanced_fast_string |  | 1.55% | 1.55%
+5 | python3.10 | tupletraverse | ../Objects/tupleobject.c#669 | 1.51% | 1.51%
+6 | python3.10 | gc_collect_main | ../Modules/gcmodule.c#1239 | 1.40% | 5.00%
+7 | python3.10 | unicode_dealloc | ../Objects/unicodeobject.c#1949 | 1.35% | 1.60%
+8 | vmlinux | clear_page_erms |  | 1.20% | 1.20%
