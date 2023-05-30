@@ -1,0 +1,12 @@
+# Index | Process/Library | Function | File | Self CPU | Self+Children CPU
+10 | python3.10 | deduce_unreachable | ../Modules/gcmodule.c#1143 | 0.62% | 1.78%
+11 | vmlinux | do_user_addr_fault |  | 0.62% | 2.60%
+12 | python3.10 | long_to_decimal_string_internal | ../Objects/longobject.c#1622 | 0.61% | 0.74%
+13 | vmlinux | _raw_spin_unlock_irqrestore |  | 0.61% | 0.61%
+14 | cc1 | bitmap_set_bit(bitmap_head*, int) | ../../src/gcc/bitmap.c#982 | 0.59% | 0.60%
+15 | python | visit_decref | Modules/gcmodule.c#465 | 0.53% | 0.55%
+16 | python | visit_reachable | Modules/gcmodule.c#501 | 0.48% | 0.49%
+17 | python | _PyObject_Malloc | Objects/obmalloc.c#1439 | 0.47% | 0.58%
+18 | python | _PyObject_Free | Objects/obmalloc.c#1718 | 0.47% | 0.54%
+19 | Python | bla | foo.py#2 | 0.44% | 0.98%
+20 | libc.so.6 | _int_free | ./malloc/malloc.c#4616 | 0.35% | 0.42%
