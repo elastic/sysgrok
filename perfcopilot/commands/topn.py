@@ -17,16 +17,31 @@ def add_to_command_parser(subparsers):
 
 
 prompt = """You are assisting me with understanding the top most expensive functions found by a
-software profiler, such as pprof or perf record. I will provide you an ordered list of the most expensive
+software profiler. I will provide you a list of the most expensive
 functions, the amount of CPU time spent in each, and the software libraries or programs that each
 function is in. If the first line of the input starts with a # then that line is a header, which
 describes the format of the following lines.
 
-Your task is to brief, technical explanation of each library or program and its common
-use cases. For each function in each library, also give a brief explanation of its purpose. Group
-the explanation of the functions in a library or program together. For each library, then suggest
-ways to optimize or improve the system to make it more efficient given that this library and its
-functions are consuming significant CPU resources.
+For each program or library in the input you must produce a report that looks as follows (you will
+generate the content in between angular <> brackets). First give a brief, technical explanation of
+each library or program and its common use cases. For each function in each library, also give a
+brief explanation of its purpose. Group the explanation of the functions in a library or program
+together. The format should look like this:
+
+Begin format example.
+
+# <insert program/library name>
+<Insert brief technical description of the program/library and its primary use cases>
+
+The functions executed in <insert program/library name> were:
+* <insert first function>
+* <insert second function>
+... etc
+
+End format example.
+
+Then for each library,  suggest ways to optimize or improve the system to make it more
+efficient given that this library and its functions are consuming significant CPU resources.
 
 Types of improvements that would be useful to me are improvements that result in:
 
@@ -36,60 +51,64 @@ Types of improvements that would be useful to me are improvements that result in
 - Better network I/O efficiency so that less data is sent over the network
 - Better disk I/O efficiency so that less data is read and written from disk
 
-Make a maximum of three suggestions per library or program. Favour providing a small number of
-accurate, concise, concrete, technically correct and actionable suggestions, over a larger number
-of ones that do not have these properties. If you do not know of any way in which to improve the
-performance then say "None available" in the optimisation suggestions section for that library.
+The format should look like this:
 
-Your suggestions must meet all of the following criteria:
-1. Your suggestions should detailed, accurate, technical and include concrete examples.
-2. Your suggestions should be specific to the provided input data. For each library, when making
-optimisation suggestions they must be specific to that library and the functions that were
-executed in it. Do not make generic suggestions.
-3. If you suggest replacing the function or library with a more efficient replacement you must
+Begin format example.
+
+Here are some suggestions as to how you might optimize your system if the above functions
+in <insert program/library name> are consuming significant CPU resources:
+
+## Problem 1: <insert potential problem description>
+
+Observation: <insert what observation you have made about the data that suggests the problem exists>
+
+The following optimisations may help resolve this problem:
+Optimisation 1: <insert a description of a change the user could make to remedy the problem>
+Expected outcome 1: <insert a description of the the outcome the user should expect to see in their
+system as a result of the change>
+
+Optimisation 2: <insert a description of a change the user could make to remedy the problem>
+Expected outcome 2: <insert a description of the the outcome the user should expect to see in their
+system as a result of the change>
+
+Optimisation 3: <insert a description of a change the user could make to remedy the problem>
+Expected outcome 3: <insert a description of the the outcome the user should expect to see in their
+system as a result of the change>
+
+... etc.
+
+End format example.
+
+You may identify as many problems per program/library as you want. You can make a maximum of three
+optimisation suggestions per problem. If you cannot see any problems based on the functions executed
+in a particular program/library then say "No problems identified." instead of listing problems.
+If you do not know of any way in which to improve the performance, then say "None available" in
+the optimisation suggestions section.
+
+Your optimisation suggestions must meet all of the following criteria:
+1. Your suggestions should detailed, accurate, actionable, technical, and include concrete examples.
+2. If you suggest replacing the function or library with a more efficient replacement you must
 suggest at least one concrete replacement.
-4. If you suggest making code changes, then show a code snippet as an example of what you mean,
+3. If you suggest making code changes, then show a code snippet as an example of what you mean,
 and explain why it is helpful.
-5. Do not suggest making changes to functions that are in large public libraries, like libc, or
+4. Do not suggest making changes to functions that are in large public libraries, like libc, or
 the Linux kernel.
 
-Do not suggest to use a CPU profiler or to profile the code. I have already profiled the code
-using a CPU profiler. You should favour stopping making suggestions over suggesting profiling
-the code with a CPU profiler.
+Do not suggest to use a CPU profiler or to profile the code. You should favour stopping making
+suggestions over suggesting profiling the code with a CPU profiler.
 
-This is an example:
+This is an example (you must not tell me to refer to this example in your output):
 
-Input:
+Example input:
 # Index | Process/Library | Function | File | Self CPU | Self+Children CPU
-1 | sha1sum | sha1_process_block | lib/sha1.c#436 | 3.18% | 3.18%
-2 | libc.so.6 | __random | ./stdlib/random.c#295 | 2.43% | 2.79%
-3 | python | _PyEval_EvalFrameDefault | Python/bytecodes.c#2643 | 1.72% | 32.87%
-4 | python | gc_collect_main | Modules/gcmodule.c#1303 | 1.54% | 4.58%
-5 | python | _PyEval_EvalFrameDefault | Python/generated_cases.c.h#3539 | 0.95% | 2.55%
-6 | vmlinux | clear_page_erms |  | 0.78% | 0.78%
-7 | libc.so.6 | _int_malloc | ./malloc/malloc.c#4299 | 0.68% | 0.96%
-8 | python | visit_decref | Modules/gcmodule.c#465 | 0.66% | 0.68%
-9 | python | deduce_unreachable | ../Modules/gcmodule.c#1143 | 0.64% | 1.72%
-10 | vmlinux | copy_user_enhanced_fast_string |  | 0.42% | 1.55%
+1 | libc.so.6 | __random | ./stdlib/random.c#295 | 2.43% | 2.79%
+2 | python | _PyEval_EvalFrameDefault | Python/bytecodes.c#2643 | 1.72% | 32.87%
+3 | python | gc_collect_main | Modules/gcmodule.c#1303 | 1.54% | 4.58%
+4 | libc.so.6 | _int_malloc | ./malloc/malloc.c#4299 | 0.68% | 0.96%
+5 | python | visit_decref | Modules/gcmodule.c#465 | 0.66% | 0.68%
 
-Output:
-sha1sum
-========
-sha1sum is a command-line utility for computing and verifying SHA-1 hashes. It is commonly used for verifying file
-integrity.
-
-The functions executed in sha1sum here:
-   * sha1_process_block: Processes a block of data and updates the SHA-1 hash state.
-
-Optimisation Suggestions
-------------------------
-
-1. Consider using a more modern and efficient hashing algorithm like SHA-256 or SHA-3. These algorithms provide better
-security and may have better performance characteristics. For example, you could use the OpenSSL library, which
-provides implementations of various hashing algorithms, including SHA-256 and SHA-3.
-
-libc.so.6
-=========
+Example output:
+# libc.so.6
 
 libc.so.6 is the GNU C Library (glibc) is a core library for the C programming language, providing basic functionality
 and system calls.
@@ -98,21 +117,36 @@ The functions executed in libc.so.6 were:
    * __random: Generates a random number.
    * _int_malloc: Internal memory allocation function in glibc.
 
-Optimisation Suggestions
-------------------------
+Here are some suggestions as to how you might optimize your system if the above functions in libc.so.6 are
+consuming significant CPU resources:
 
-1. Use a faster random number generator: If the random function is a performance bottleneck, consider using a faster
+## Problem 1: You are using a potentially inefficient random number generator
+
+Observation: The presence of the __random function in libc.so.6 indicates you are generating random numbers
+using the default libc random number generator.
+
+Optimisation: If the random function is a performance bottleneck, consider using a faster
 random number generator, such as the xorshift family of algorithms. For example, you could use the xoroshiro128+ or
 xorshift128+ algorithms, which are known for their speed and good statistical properties. Implement these algorithms
 in your code and replace calls to the random function with calls to your new generator.
 
-2. Use a custom memory allocator: Replace the default malloc with a more efficient memory allocator, such as
-jemalloc or tcmalloc. These allocators are designed to reduce fragmentation and improve performance in multi-threaded
-applications. To use jemalloc, for example, you can link your program with the jemalloc library by adding `-ljemalloc`
-to your linker flags.
+Expected outcome: By using a more efficient random number generator the amount of time spent generating
+random numbers should decrease.
 
-python
-======
+## Problem 2: You are using a potentially inefficient memory allocator
+
+Observation: The presence of the _int_malloc function in libc.so.6 indicates that you are using the default
+libc memory allocator.
+
+Optimisation: Replace the default malloc with a more efficient memory allocator, such as jemalloc or tcmalloc.
+These allocators are designed to reduce fragmentation and improve performance in multi-threaded
+applications. To use jemalloc, for example, you can link your program with the jemalloc library by
+adding `-ljemalloc` to your linker flags.
+
+Expected outcome: By using a more efficicient memory allocator the amount of time spent on memory management
+should decrease.
+
+# python
 
 python is the Python interpreter, which executes Python scripts.
 
@@ -122,43 +156,39 @@ The functions executed in python were:
    * gc_collect_main: The main garbage collection function in Python, responsible for collecting and freeing memory
    from unused objects.
    * visit_decref: A function used during garbage collection to decrease the reference count of an object.
-   * deduce_unreachable: A function used during garbage collection to identify unreachable objects.
 
-Optimisation Suggestions
-------------------------
+Here are some suggestions as to how you might optimize your system if the above functions in python are
+consuming significant CPU resources:
 
-1. Minimize Python object creation: Reducing the number of objects created in your program can help reduce the
+## Problem 1: You are spending significant time performing garbage collection
+
+Observation: The presence of the gc_collect_main and visit_decref functions indicate that
+you are spending a significant amount of time performing garbage collection in the python interpreter.
+
+Optimisation 1: Reducing the number of objects created in your program can help reduce the
 workload of the garbage collector. This can be achieved by reusing objects, using object pools, or employing data
 structures that create fewer temporary objects.
 
-2. Tune Python garbage collection parameters: Python's garbage collector has several tunable parameters,
+Expected outcome 1: By reducing the number of objects created by your program you should reduce the amount of
+work that the garbage collector has to do.
+
+Optimisation 2: Tune Python garbage collection parameters: Python's garbage collector has several tunable parameters,
 such as `gc.set_threshold()` and `gc.set_debug()`. Adjusting these parameters can help you find a balance between
 garbage collection frequency and CPU usage. For example, you can increase the threshold to reduce the frequency
 of garbage collection, which may result in less CPU usage but higher memory consumption.
 
-vmlinux
-=======
-vmlinux is the Linux kernel.
-
-The functions executed in vmlinux were:
-   * copy_user_enhanced_fast_string: A kernel function that copies data between user space and kernel space
-   using the Enhanced REP MOVSB/STOSB (ERMS) feature.
-   * clear_page_erms: A kernel function that clears a memory page using the Enhanced REP MOVSB/STOSB (ERMS)
-   feature.
-
-Optimisation Suggestions
-------------------------
-1. Optimize data copying: If your application frequently copies data between user space and kernel space,
-consider optimizing the data structures and algorithms to minimize the amount of data that needs to be copied.
-
-2. Use zero-copy techniques: If possible, use zero-copy techniques, such as the `splice()` system call or
-memory-mapped files, to avoid unnecessary data copying between user space and kernel space.
+Expected outcome 2: By reducing the garbage collection frequency you may reduce the CPU usage of your program.
 
 End of example.
 
-This is the list of most expensive functions and the libraries they are in.
+This is the list of most expensive functions and the libraries they are in. Please produce a report
+with the same format as described above.
 
 {topn}
+
+Your report must not tell me to refer to the example provided above. I will not have access to the example
+above when reading the report you produce. You should repeat content if necessary. Do not tell me to refer
+to another part of your report instead of repeating content.
 """
 
 
