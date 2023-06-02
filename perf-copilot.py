@@ -10,6 +10,7 @@
 from perfcopilot.commands import (
     analyzecmd,
     code,
+    debughost,
     explainfunction,
     findfaster,
     stacktrace,
@@ -44,6 +45,7 @@ commands = {
     analyzecmd.command: analyzecmd,
     code.command: code,
     explainfunction.command: explainfunction,
+    debughost.command: debughost,
     findfaster.command: findfaster,
     stacktrace.command: stacktrace,
     topn.command: topn
