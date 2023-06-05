@@ -1,9 +1,9 @@
 import json
 import sys
 
-import openai
+from multiprocessing import Pool
 
-from .shared import get_base_messages, query_yes_no, execute_commands_remote
+from .shared import query_yes_no, execute_commands_remote, get_token_count, get_llm_response, print_streamed_llm_response
 
 command = "debughost"
 help = "Debug an issue by executing CLI tools and interpreting the output"
@@ -15,12 +15,14 @@ def add_to_command_parser(subparsers):
                         help="A description of the problem you are investigating. Be as detailed as possible.")
     parser.add_argument("-t", "--target-host", required=True,
                         help="The host to connect to via ssh. Otherwise commands are run locally.")
+    parser.add_argument("--print-summaries", action="store_true",
+                        help="Include the command summaries in the final report")
     parser.add_argument("--yolo", action="store_true", default=False,
                         help="Run LLM suggested commands without confirmation")
 
 
 def ask_llm_for_commands(args):
-    """Get a list of commands to run to solve the  problem described by args.problem.
+    """Get a list of commands to run to solve the  problem described by args.problem_description.
 
     Returns a list of strings, where each entry is a command to run and its arguments.
     """
@@ -40,73 +42,77 @@ Commands: ["uptime", "top -n1 -b", "ps -ef", "journalctl -b -p warning --no-page
 Problem: {problem}
 Commands:"""
 
-    messages = get_base_messages(args)
-    messages.append({
-        "role": "user",
-        "content": prompt.format(problem=args.problem_description)
-    })
-    response = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        messages=messages,
-    )
-
-    return json.loads(response["choices"][0]["message"]["content"])
+    return json.loads(get_llm_response(args, prompt.format(problem=args.problem_description)))
 
 
-def analyse_command_output(args, command_output, problem_description):
-    prompt = """I am a sysadmin. I am logged onto a machine that is experiencing a
-problem. I have executed several commands to try to debug the problem. Your task is to analyse
-the output of these commands and, based on their output, form a hypothesis as to what the root
-cause of my problem is, and suggest actions I may take to fix the problem.
+def summarise_command(args, command, command_output, summary_max_chars):
+    """Use the LLM to summarise the output of a command in summary_max_chars or fewer characters.
 
-I will provide you with the problem description, and then the exit code, stdout, and stderr
-from one or more commands.
+    command should be the command and its arguments. command_output should be a dict with elements
+    exit_code, stderr and stdout.
+    """
 
-You will respond with a summary, a hypothesis as to what the problem
-is, and a set of recommended actions to fix the problem.
+    prompt = """I am a sysadmin. I am logged onto a machine that is experiencing the following
+problem: {problem_description}
+I have executed the command '{command}' to debug that problem. I will provide you with the stdout,
+stderr and exit code of the command. I need you to summarise the output
+of the command, using a maximum of {summary_max_chars} characters. Your summary should only include
+information that is useful in understanding and debugging the problem '{problem_description}'.
+If there is no information in the exit code, stderr and stdout of the command that is useful in
+understanding or debugging the problem say "No useful information".
 
-Here is an example:
+Problem: {problem_description}
+Command: {command}
+Exit code: {exit_code}
+Stderr: {stderr}
+Stdout: {stdout}
+Summary (in {summary_max_chars} or fewer):
+"""
+    summary = get_llm_response(args, prompt.format(
+        problem_description=args.problem_description, command=command,
+        summary_max_chars=summary_max_chars,
+        exit_code=command_output["exit_code"],
+        stderr=command_output["stderr"],
+        stdout=command_output["stdout"]))
 
-Problem: The web server has stopped responding
-Command output:
-exit code for 'systemctl status httpd': 0
-stdout for 'systemctl status httpd':
-stderr for 'systemctl status httpd': Unit httpd.service could not be found.
+    return command, summary
 
-exit code for 'journalctl -u httpd --no-pager': 0
-stdout for 'journalctl -u httpd --no-pager': -- No entries --
 
-stderr for 'journalctl -u httpd --no-pager':
-exit code for 'netstat -tuln': 0
-stdout for 'netstat -tuln': Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State
-tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
-tcp6       0      0 :::22                   :::*                    LISTEN
-udp        0      0 127.0.0.53:53           0.0.0.0:*
-udp        0      0 172.31.39.206:68        0.0.0.0:*
+def calculate_max_chars_per_command_summary(prompt, example_response, num_commands, model):
+    """Calculate the maximum number of characters (not tokens) that each command summary can use.
 
-stderr for 'netstat -tuln':
-exit code for 'ps aux | grep httpd': 0
-stdout for 'ps aux | grep httpd': ubuntu     24723  0.0  0.0   7760  3368 ?        Ss   16:43   0:00 bash -c sudo -S -p '[sudo] password: ' ps aux | grep httpd
-ubuntu     24725  0.0  0.0   7004  2228 ?        S    16:43   0:00 grep httpd
+    The prompt should be a string that represents the entire contents of the prompt, without the
+    command summaries. The example response should be a string indicative of what the response will
+    look like."""
 
-stderr for 'ps aux | grep httpd':
-exit code for 'curl -I localhost': 0
-stdout for 'curl -I localhost':
-stderr for 'curl -I localhost':   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 80 after 0 ms: Connection refused
+    if model == "gpt-3.5-turbo":
+        max_tokens = 4096
+    elif model == "gpt-4":
+        max_tokens = 8192
+    else:
+        print(f"Unknown model: {model}")
+        sys.exit(-1)
 
-exit code for 'tail -n 50 /var/log/httpd/error_log': 0
-stdout for 'tail -n 50 /var/log/httpd/error_log':
-stderr for 'tail -n 50 /var/log/httpd/error_log': tail: cannot open '/var/log/httpd/error_log' for reading: No such file or directory
+    prompt_tokens = get_token_count(prompt, model)
+    response_tokens = get_token_count(example_response, model)
+    # Allow for a slightly bigger response than the example response
+    response_tokens = int(response_tokens * 1.5)
 
-Response:
+    # Calculate the number of tokens each command can use by dividing the remaining tokens
+    # after we account for the length of the prompt by the number of commands
+    tokens_remaining = max_tokens - prompt_tokens
+    tokens_per_command = tokens_remaining / num_commands
 
-# Summary
+    # Calculate the char to token ratio using the ratios we got for the prompt and response
+    prompt_char_token_ratio = len(prompt) / prompt_tokens
+    response_char_token_ratio = len(example_response) / response_tokens
+    char_token_ratio = min(prompt_char_token_ratio, response_char_token_ratio)
+
+    chars_per_command = int(tokens_per_command * char_token_ratio)
+    return chars_per_command
+
+
+example_response = """# Summary
 Based on the output of the above commands, it looks like the web server is not running, and
 is possibly not installed.
 
@@ -124,43 +130,61 @@ service.
 for a httpd server.
 
 # Recommendations
-Check to ensure that the httpd service is actually installed on the host and configured to run.
+Check to ensure that the httpd service is actually installed on the host and configured to run."""
+
+
+analyse_summaries_prompt = """I am a sysadmin. I am logged onto a machine that is experiencing a
+problem. I have executed several commands to try to debug the problem. Your task is to analyse
+the output of these commands and, based on their output, form a hypothesis as to what the root
+cause of my problem is, and suggest actions I may take to fix the problem.
+
+I will provide you with the problem description, and then the exit code, stdout, and stderr
+from one or more commands.
+
+You will respond with a summary, a hypothesis as to what the problem
+is, and a set of recommended actions to fix the problem.
+
+Here is an example good response
+
+Response:
+{response}
 
 Problem: {problem}
-""".format(problem=problem_description)
+Command summaries:
+{command_summaries}
+Response:"""
 
-    tmp_command_output = []
-    for command, output in command_output.items():
-        tmp_command_output.append(f"exit code for '{command}': {output['exit_code']}")
-        tmp_command_output.append(f"stdout for '{command}': {output['stdout']}")
-        tmp_command_output.append(f"stderr for '{command}': {output['stderr']}")
 
-    tmp_command_output.append("Response:")
-    final_prompt = prompt + "\n".join(tmp_command_output)
+def analyse_command_output(args, commands_output, problem_description):
+    max_chars = calculate_max_chars_per_command_summary(
+        analyse_summaries_prompt.format(response=example_response,
+                                        problem=args.problem_description,
+                                        command_summaries=""),
+        example_response,
+        len(commands_output), args.model)
 
-    messages = get_base_messages(args)
-    messages.append({
-        "role": "user",
-        "content": final_prompt
-    })
+    print("Summarising commands ...")
 
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages
-    )
+    multiproc_args = [(args, c, o, max_chars) for c, o in commands_output.items()]
+    with Pool(min(args.max_concurrent_queries, len(commands_output))) as p:
+        command_summaries = p.starmap(summarise_command, multiproc_args)
 
-    wrote_reply = False
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        sys.stdout.write((delta["content"]))
-        wrote_reply = True
+    cs_str_builder = []
+    for cs in command_summaries:
+        command = cs[0]
+        summary = cs[1]
+        cs_str_builder.append(f"Summary for '{command}': {summary}")
+    cs_str = "\n".join(cs_str_builder)
 
-    if wrote_reply:
-        sys.stdout.write("\n")
+    if args.print_summaries:
+        print("# Command Summaries")
+        for c, s in command_summaries:
+            print(f"## Summary for '{c}")
+            print(s)
+
+    print_streamed_llm_response(args, analyse_summaries_prompt.format(
+        response=example_response, problem=problem_description, command_summaries=cs_str))
+
     return 0
 
 

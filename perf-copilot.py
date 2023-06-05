@@ -41,53 +41,56 @@ ascii_name = """
 Performance analysis and optimisation with LLMs
 """
 
-commands = {
-    analyzecmd.command: analyzecmd,
-    code.command: code,
-    explainfunction.command: explainfunction,
-    debughost.command: debughost,
-    findfaster.command: findfaster,
-    stacktrace.command: stacktrace,
-    topn.command: topn
-}
+if __name__ == "__main__":
+    commands = {
+        analyzecmd.command: analyzecmd,
+        code.command: code,
+        explainfunction.command: explainfunction,
+        debughost.command: debughost,
+        findfaster.command: findfaster,
+        stacktrace.command: stacktrace,
+        topn.command: topn
+    }
 
-parser = argparse.ArgumentParser(
-    prog=sys.argv[0],
-    description=ascii_name,
-    epilog="",
-    formatter_class=argparse.RawDescriptionHelpFormatter
-)
-parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
-parser.add_argument("-e", "--echo-input", action="store_true",
-                    help="""Echo the input provided to perf-copilot. Useful when input is piped in
-and you want to see what it is""")
+    parser = argparse.ArgumentParser(
+        prog=sys.argv[0],
+        description=ascii_name,
+        epilog="",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
+    parser.add_argument("-e", "--echo-input", action="store_true",
+                        help="""Echo the input provided to perf-copilot. Useful when input is piped in
+    and you want to see what it is""")
 
-format_group = parser.add_mutually_exclusive_group()
-format_group.add_argument("--output-markdown", action="store_true",
-                          help="Ask the LLM to format its output as markdown")
-format_group.add_argument("--output-html", action="store_true",
-                          help="Ask the LLM to format its output as HTML")
+    format_group = parser.add_mutually_exclusive_group()
+    format_group.add_argument("--output-markdown", action="store_true",
+                              help="Ask the LLM to format its output as markdown")
+    format_group.add_argument("--output-html", action="store_true",
+                              help="Ask the LLM to format its output as HTML")
 
-parser.add_argument("-m", "--model", default="gpt-3.5-turbo",
-                    help="""The OpenAI model to use. Must be one of the chat completion models.
-See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.""")
-parser.add_argument("--temperature", type=float, default=0, help="ChatGPT temperature. See OpenAI docs.")
+    parser.add_argument("-m", "--model", default="gpt-3.5-turbo",
+                        help="""The OpenAI model to use. Must be one of the chat completion models.
+    See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.""")
+    parser.add_argument("--temperature", type=float, default=0, help="ChatGPT temperature. See OpenAI docs.")
+    parser.add_argument("--max-concurrent-queries", type=int, default=4,
+                        help="Maximum number of parallel queries to OpenAI")
 
-subparsers = parser.add_subparsers(help="The sub-command to execute", dest="command")
-for v in commands.values():
-    v.add_to_command_parser(subparsers)
+    subparsers = parser.add_subparsers(help="The sub-command to execute", dest="command")
+    for v in commands.values():
+        v.add_to_command_parser(subparsers)
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-if not args.command:
-    parser.print_help(sys.stderr)
-    sys.stderr.write("\nNo sub-command selected\n")
-    sys.exit(1)
+    if not args.command:
+        parser.print_help(sys.stderr)
+        sys.stderr.write("\nNo sub-command selected\n")
+        sys.exit(1)
 
-if args.command not in commands:
-    parser.print_help(sys.stderr)
-    sys.stderr.write("\nUnknown sub-command\n")
-    sys.exit(1)
+    if args.command not in commands:
+        parser.print_help(sys.stderr)
+        sys.stderr.write("\nUnknown sub-command\n")
+        sys.exit(1)
 
-sys.exit(commands[args.command].run(parser, args))
+    sys.exit(commands[args.command].run(parser, args))

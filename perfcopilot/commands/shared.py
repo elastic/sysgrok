@@ -1,8 +1,10 @@
 import sys
 import subprocess
 
+import openai
 import fabric
 import invoke
+import tiktoken
 
 
 def get_base_messages(args):
@@ -67,22 +69,74 @@ def execute_commands_remote(host, commands, verbose=False):
     res = {}
     with fabric.Connection(host) as conn:
         for command in commands:
-            if verbose:
+            tries = 0
+            success = False
+            while not success and tries < 3:
+                tries += 1
                 print(f"Executing '{command}' on {host} ...")
 
-            try:
-                e = conn.sudo(command, hide=True, timeout=20, warn=True)
-                if verbose:
-                    if e.ok:
-                        print(e.stdout)
-                    else:
-                        print(f"Failed to execute '{command}' on {host}. Non-zero exit code: {e.return_code}.")
-                        print(f"stdout: {e.stdout}")
-                        print(f"stderr: {e.stderr}")
+                try:
+                    e = conn.sudo(command, hide=True, timeout=20, warn=True)
+                    if verbose:
+                        if e.ok:
+                            print(e.stdout)
+                        else:
+                            print(f"Failed to execute '{command}' on {host}. Non-zero exit code: {e.return_code}.")
+                            print(f"stdout: {e.stdout}")
+                            print(f"stderr: {e.stderr}")
 
-                res[command] = {"exit_code": 0, "stderr": e.stderr, "stdout": e.stdout}
-            except Exception as e:
-                print(f"Failed to execute '{command}' on {host}. Exception: {e}")
-                sys.exit(-1)
+                    res[command] = {"exit_code": e.return_code, "stderr": e.stderr, "stdout": e.stdout}
+                    success = True
+                except Exception as e:
+                    print(f"Failed to execute '{command}' on {host}. Exception: {e}")
+
+            if not success:
+                print(f"Failed to execute '{command}' on {host}")
 
     return res
+
+
+def get_token_count(data, model):
+    enc = tiktoken.encoding_for_model(model)
+    return len(enc.encode(data))
+
+
+def get_llm_response(args, prompt):
+    messages = get_base_messages(args)
+    messages.append({
+        "role": "user",
+        "content": prompt
+    })
+    response = openai.ChatCompletion.create(
+        model=args.model,
+        temperature=args.temperature,
+        messages=messages,
+    )
+
+    return response["choices"][0]["message"]["content"]
+
+
+def print_streamed_llm_response(args, prompt):
+    messages = get_base_messages(args)
+    messages.append({
+        "role": "user",
+        "content": prompt
+    })
+
+    completion = openai.ChatCompletion.create(
+        model=args.model,
+        temperature=args.temperature,
+        stream=True,
+        messages=messages
+    )
+
+    wrote_reply = False
+    for chunk in completion:
+        delta = chunk["choices"][0]["delta"]
+        if "content" not in delta:
+            continue
+        sys.stdout.write((delta["content"]))
+        wrote_reply = True
+
+    if wrote_reply:
+        sys.stdout.write("\n")
