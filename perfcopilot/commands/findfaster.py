@@ -49,5 +49,5 @@ def run(args_parser, args):
     if args.echo_input:
         print(target)
 
-    print_streamed_llm_response(args, prompt=software_type_prompts[args.software_type])
+    print_streamed_llm_response(software_type_prompts[args.software_type].format(target=args.target))
     return 0

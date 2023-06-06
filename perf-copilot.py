@@ -7,6 +7,7 @@
 # Author: Sean Heelan
 # Email: sean@heelan.io
 
+from perfcopilot.llm import LLMConfig, set_config
 from perfcopilot.commands import (
     analyzecmd,
     code,
@@ -19,7 +20,6 @@ from perfcopilot.commands import (
 
 import argparse
 import logging
-logging
 import os
 import sys
 
@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
+
 
 ascii_name = """
                   __                       _ _       _
@@ -65,12 +66,7 @@ if __name__ == "__main__":
                         help="""Echo the input provided to perf-copilot. Useful when input is piped in
     and you want to see what it is""")
 
-    format_group = parser.add_mutually_exclusive_group()
-    format_group.add_argument("--output-markdown", action="store_true",
-                              help="Ask the LLM to format its output as markdown")
-    format_group.add_argument("--output-html", action="store_true",
-                              help="Ask the LLM to format its output as HTML")
-
+    parser.add_argument("--output-format", type=str, help="Specify the output format for the LLM to use")
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo",
                         help="""The OpenAI model to use. Must be one of the chat completion models.
     See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.""")
@@ -92,6 +88,8 @@ if __name__ == "__main__":
         log_level = logging.DEBUG
 
     logging.basicConfig(format=log_format, datefmt=log_date_format, level=log_level)
+
+    set_config(LLMConfig(args.model, args.temperature, args.max_concurrent_queries, args.output_format))
 
     if not args.command:
         parser.print_help(sys.stderr)

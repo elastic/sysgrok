@@ -1,4 +1,5 @@
 import json
+import logging
 import sys
 
 from perfcopilot.ui import query_yes_no
@@ -22,7 +23,7 @@ def add_to_command_parser(subparsers):
                         help="Run LLM suggested commands without confirmation")
 
 
-def ask_llm_for_commands(args):
+def ask_llm_for_commands(problem_description):
     """Get a list of commands to run to solve the  problem described by args.problem_description.
 
     Returns a list of strings, where each entry is a command to run and its arguments.
@@ -43,26 +44,26 @@ Commands: ["uptime", "top -n1 -b", "ps -ef", "journalctl -b -p warning --no-page
 Problem: {problem}
 Commands:"""
 
-    return json.loads(get_llm_response(args, prompt.format(problem=args.problem_description)))
+    return json.loads(get_llm_response(prompt.format(problem=problem_description)))
 
 
 def run(args_parser, args):
-    print("Querying the LLM for commands to run ...")
-    commands = ask_llm_for_commands(args)
+    logging.info("Querying the LLM for commands to run ...")
+    commands = ask_llm_for_commands(args.problem_description)
     if not commands:
         sys.stderr.write("LLM did not return any commands to run")
         return -1
 
-    print("LLM suggested running the following commands: ")
+    logging.info("LLM suggested running the following commands: ")
     for command in commands:
-        print(f"\t{command}")
+        logging.info(f"    {command}")
 
     if not args.yolo:
         if not query_yes_no("Allow execution of the above commands with sudo?"):
-            print("Permission denied. Exiting.")
+            logging.error("Permission denied. Exiting.")
             return -1
 
-    print(f"{len(commands)} commands in total to execute ...")
+    logging.info(f"{len(commands)} commands in total to execute ...")
 
     command_output = execute_commands_remote(args.target_host, commands)
-    analyse_command_output(args, command_output, args.problem_description)
+    analyse_command_output(command_output, args.problem_description, args.print_summaries)
