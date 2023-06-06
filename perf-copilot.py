@@ -18,6 +18,8 @@ from perfcopilot.commands import (
 )
 
 import argparse
+import logging
+logging
 import os
 import sys
 
@@ -58,7 +60,6 @@ if __name__ == "__main__":
         epilog="",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
     parser.add_argument("-e", "--echo-input", action="store_true",
                         help="""Echo the input provided to perf-copilot. Useful when input is piped in
@@ -82,6 +83,15 @@ if __name__ == "__main__":
         v.add_to_command_parser(subparsers)
 
     args = parser.parse_args()
+
+    log_format = '%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s'
+    log_date_format = '%Y-%m-%d %H:%M:%S'
+    log_level = logging.INFO
+
+    if args.debug:
+        log_level = logging.DEBUG
+
+    logging.basicConfig(format=log_format, datefmt=log_date_format, level=log_level)
 
     if not args.command:
         parser.print_help(sys.stderr)
