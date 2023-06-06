@@ -1,8 +1,4 @@
-import sys
-
-import openai
-
-from .shared import get_base_messages
+from perfcopilot.llm import print_streamed_llm_response
 
 command = "findfaster"
 help = "Search for faster alternatives to a provided library or program"
@@ -53,29 +49,5 @@ def run(args_parser, args):
     if args.echo_input:
         print(target)
 
-    prompt = software_type_prompts[args.software_type]
-
-    messages = get_base_messages(args)
-    messages.append({
-        "role": "user",
-        "content": prompt.format(target=target)
-        })
-
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages
-    )
-
-    wrote_reply = False
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        sys.stdout.write((delta["content"]))
-        wrote_reply = True
-
-    if wrote_reply:
-        sys.stdout.write("\n")
+    print_streamed_llm_response(args, prompt=software_type_prompts[args.software_type])
     return 0

@@ -2,7 +2,8 @@ import sys
 
 import openai
 
-from .shared import get_base_messages
+from perfcopilot.llm import get_base_messages
+
 
 command = "explainfunction"
 help = "Explain what a function does and suggest optimisations"

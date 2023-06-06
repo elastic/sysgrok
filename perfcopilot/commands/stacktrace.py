@@ -1,9 +1,8 @@
-import argparse
 import sys
+import argparse
 
-import openai
+from perfcopilot.llm import print_streamed_llm_response
 
-from .shared import get_base_messages
 
 command = "stacktrace"
 help = "Summarise a stack trace and suggest changes to optimise the software"
@@ -68,27 +67,5 @@ def run(args_parser, args):
     if args.echo_input:
         print(stacktrace)
 
-    messages = get_base_messages(args)
-    messages.append({
-        "role": "user",
-        "content": prompt.format(stacktrace=stacktrace)
-    })
-
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages
-    )
-
-    wrote_reply = False
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        sys.stdout.write((delta["content"]))
-        wrote_reply = True
-
-    if wrote_reply:
-        sys.stdout.write("\n")
+    print_streamed_llm_response(args, prompt.format(stacktrace=stacktrace))
     return 0
