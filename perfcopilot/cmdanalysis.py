@@ -1,10 +1,17 @@
 import logging
 import sys
 
-from perfcopilot.llm import get_llm_response, get_token_count, print_streamed_llm_response
+from multiprocessing import Pool
+
+from perfcopilot import llm
 
 
-def summarise_command(args, command, command_output, summary_max_chars):
+def multiproc_wrapper_summarise_command(llm_config, *args):
+    llm.set_config(llm_config)
+    return summarise_command(*args)
+
+
+def summarise_command(command, command_output, summary_max_chars, problem_description):
     """Use the LLM to summarise the output of a command in summary_max_chars or fewer characters.
 
     command should be the command and its arguments. command_output should be a dict with elements
@@ -27,8 +34,8 @@ Stderr: {stderr}
 Stdout: {stdout}
 Summary (in {summary_max_chars} or fewer):
 """
-    summary = get_llm_response(args, prompt.format(
-        problem_description=args.problem_description, command=command,
+    summary = llm.get_llm_response(prompt.format(
+        problem_description=problem_description, command=command,
         summary_max_chars=summary_max_chars,
         exit_code=command_output["exit_code"],
         stderr=command_output["stderr"],
@@ -37,12 +44,14 @@ Summary (in {summary_max_chars} or fewer):
     return command, summary
 
 
-def calculate_max_chars_per_command_summary(prompt, example_response, num_commands, model):
+def calculate_max_chars_per_command_summary(prompt, example_response, num_commands):
     """Calculate the maximum number of characters (not tokens) that each command summary can use.
 
     The prompt should be a string that represents the entire contents of the prompt, without the
     command summaries. The example response should be a string indicative of what the response will
     look like."""
+
+    model = llm.get_model()
 
     if model == "gpt-3.5-turbo":
         max_tokens = 4096
@@ -52,8 +61,8 @@ def calculate_max_chars_per_command_summary(prompt, example_response, num_comman
         print(f"Unknown model: {model}")
         sys.exit(-1)
 
-    prompt_tokens = get_token_count(prompt, model)
-    response_tokens = get_token_count(example_response, model)
+    prompt_tokens = llm.get_token_count(prompt, model)
+    response_tokens = llm.get_token_count(example_response, model)
     # Allow for a slightly bigger response than the example response
     response_tokens = int(response_tokens * 1.5)
 
@@ -114,19 +123,19 @@ Command summaries:
 Response:"""
 
 
-def analyse_command_output(args, commands_output, problem_description):
+def analyse_command_output(commands_output, problem_description, print_each_summary=False):
     max_chars = calculate_max_chars_per_command_summary(
         analyse_summaries_prompt.format(response=example_response,
-                                        problem=args.problem_description,
+                                        problem=problem_description,
                                         command_summaries=""),
         example_response,
-        len(commands_output), args.model)
+        len(commands_output))
 
-    logging.debug(f"Summarising {len(commands_output)} commands")
+    logging.info(f"Summarising {len(commands_output)} commands")
 
-    multiproc_args = [(args, c, o, max_chars) for c, o in commands_output.items()]
-    with Pool(min(args.max_concurrent_queries, len(commands_output))) as p:
-        command_summaries = p.starmap(summarise_command, multiproc_args)
+    multiproc_args = [(llm.get_config(), c, o, max_chars, problem_description) for c, o in commands_output.items()]
+    with Pool(min(llm.get_max_concurrent_queries(), len(commands_output))) as p:
+        command_summaries = p.starmap(multiproc_wrapper_summarise_command, multiproc_args)
 
     cs_str_builder = []
     for cs in command_summaries:
@@ -135,13 +144,11 @@ def analyse_command_output(args, commands_output, problem_description):
         cs_str_builder.append(f"Summary for '{command}': {summary}")
     cs_str = "\n".join(cs_str_builder)
 
-    if args.print_summaries:
+    if print_each_summary:
         print("# Command Summaries")
         for c, s in command_summaries:
-            print(f"## Summary for '{c}")
+            print(f"## Summary for '{c}'")
             print(s)
 
-    print_streamed_llm_response(args, analyse_summaries_prompt.format(
+    llm.print_streamed_llm_response(analyse_summaries_prompt.format(
         response=example_response, problem=problem_description, command_summaries=cs_str))
-
-    return 0
