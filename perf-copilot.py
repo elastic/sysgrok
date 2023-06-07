@@ -13,6 +13,7 @@ from perfcopilot.commands import (
     code,
     debughost,
     explainfunction,
+    explainprocess,
     findfaster,
     stacktrace,
     topn
@@ -49,6 +50,7 @@ if __name__ == "__main__":
         analyzecmd.command: analyzecmd,
         code.command: code,
         explainfunction.command: explainfunction,
+        explainprocess.command: explainprocess,
         debughost.command: debughost,
         findfaster.command: findfaster,
         stacktrace.command: stacktrace,

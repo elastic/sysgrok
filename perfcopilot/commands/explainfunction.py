@@ -1,8 +1,6 @@
 import sys
 
-import openai
-
-from perfcopilot.llm import get_base_messages
+from perfcopilot.llm import print_streamed_llm_response
 
 
 command = "explainfunction"
@@ -71,64 +69,11 @@ def run(args_parser, args):
     if args.echo_input:
         print(f"{args.lib} {args.func}")
 
-    messages = get_base_messages()
-    messages.append({
-        "role": "user",
-        "content": explain_prompt.format(library=args.library, function=args.function)
-    })
+    conversation = print_streamed_llm_response(explain_prompt.format(library=args.library, function=args.function))
 
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages,
-    )
-
-    explanation = []
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        content = delta["content"]
-        explanation.append(content)
-        sys.stdout.write(content)
-
-    if explanation:
-        sys.stdout.write("\n")
-
-    if args.no_optimisations:
+    if args.no_optimizations:
         return 0
 
-    messages.extend([
-        {
-            "role": "assistant",
-            "content": "".join(explanation)
-        },
-        {
-            "role": "user",
-            "content": optimize_prompt.format(library=args.library, function=args.function)
-        }])
-
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages,
-    )
-
-    wrote_reply = False
-    first_iter = True
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        wrote_reply = True
-        if first_iter:
-            sys.stdout.write("\n")
-            first_iter = False
-        sys.stdout.write(delta["content"])
-
-    if wrote_reply:
-        sys.stdout.write("\n")
-
+    sys.stdout.write("\n")
+    print_streamed_llm_response(optimize_prompt.format(library=args.library, function=args.function), conversation)
     return 0

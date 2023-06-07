@@ -111,9 +111,13 @@ def get_llm_response(prompt):
     return response["choices"][0]["message"]["content"]
 
 
-def print_streamed_llm_response(prompt):
-    messages = get_base_messages()
-    messages.append({
+def print_streamed_llm_response(prompt, conversation=None):
+    response = []
+
+    if not conversation:
+        conversation = get_base_messages()
+
+    conversation.append({
         "role": "user",
         "content": prompt
     })
@@ -122,7 +126,7 @@ def print_streamed_llm_response(prompt):
         model=get_model(),
         temperature=get_temperature(),
         stream=True,
-        messages=messages
+        messages=conversation
     )
 
     wrote_reply = False
@@ -130,8 +134,14 @@ def print_streamed_llm_response(prompt):
         delta = chunk["choices"][0]["delta"]
         if "content" not in delta:
             continue
-        sys.stdout.write((delta["content"]))
+        content = delta["content"]
+        sys.stdout.write(content)
+        response.append(content)
         wrote_reply = True
 
     if wrote_reply:
         sys.stdout.write("\n")
+
+    conversation.append({"role": "assistant", "content": "".join(response)})
+
+    return conversation
