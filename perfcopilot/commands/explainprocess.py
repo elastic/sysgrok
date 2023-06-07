@@ -13,7 +13,7 @@ def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
     parser.add_argument("--no-optimizations", action='store_true', default=False,
                         help="Do not suggest optimizations")
-    parser.add_argument("process", nargs=argparse.REMAINDER)
+    parser.add_argument("process", nargs=argparse.REMAINDER, help="The process to explain, and its arguments")
 
 # explainprocess is implemented as a two step conversation. First we ask the LLM for an explanation of the
 # process. Then, afterwards, if the user has asked for suggested optimisations, we
