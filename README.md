@@ -135,7 +135,7 @@ Attempts to find the root cause of the problem and suggest remediations.
 
 **Open Issues:**
 
-### code
+## code
 
 **Description:** Takes source code that has been annotated by a profiler to indicate
 hot paths. Attempts to describe what is happening on those hot paths and suggest
