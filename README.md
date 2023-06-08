@@ -14,12 +14,20 @@ Contact: sean.heelan@elastic.co
 ```
 
 `perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
-LLMs can be used to understand profiling data, and assist users in coming up
-with ways to resolve performance and stability issues in their systems. The
-hypothesis being tested by `perf-copilot` is that LLMs can be used to make users
-of profiling tools more efficient at understanding their profiler output, and
-more effective in coming up with practical solutions to problems they
-encounter.
+LLMs can be used to help SWEs and SREs to optimise the performance of their systems
+and resolve stability and reliability problems.
+
+It can do things like:
+
+* Take the top most expensive functions and processes identified by a profiler, explain
+the functionality that each provides, and suggest optimisations.
+* Take a host and a description of a problem that host is encountering and automatically 
+debug the issue and suggest remediations.
+* Take source code that has been annotated by a profiler, explain the hot paths, and 
+suggest ways to improve the performance of the code.  
+
+See the Command Overview section below for an overview of the full list of available
+commands that it supports. 
 
 # Installation
 
@@ -39,7 +47,8 @@ For now, `perf-copilot` is a command line tool and takes input either via stdin
 or from a file, depending on the command. Usage is as follows:
 
 ```
-usage: ./perf-copilot.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATURE] {analyzecmd,code,explainfunction,findfaster,stacktrace,topn} ...
+usage: ./perf-copilot.py [-h] [-d] [-e] [--output-format OUTPUT_FORMAT] [-m MODEL] [--temperature TEMPERATURE] [--max-concurrent-queries MAX_CONCURRENT_QUERIES]
+                         {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn} ...
 
                   __                       _ _       _
                  / _|                     (_) |     | |
@@ -53,25 +62,29 @@ usage: ./perf-copilot.py [-h] [-v] [-d] [-e] [-m MODEL] [--temperature TEMPERATU
 Performance analysis and optimisation with LLMs
 
 positional arguments:
-  {analyzecmd,code,explainfunction,findfaster,stacktrace,topn}
+  {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn}
                         The sub-command to execute
-    analyzecmd          Analyze the output of CLI tools to find the root cause of an issue and suggest remediations
+    analyzecmd          Summarise the output of a command, optionally with respect to a problem under investigation
     code                Summarise profiler-annoted code and suggest optimisations
     explainfunction     Explain what a function does and suggest optimisations
+    explainprocess      Explain what a process does and suggest optimisations
+    debughost           Debug an issue by executing CLI tools and interpreting the output
     findfaster          Search for faster alternatives to a provided library or program
     stacktrace          Summarise a stack trace and suggest changes to optimise the software
     topn                Summarise Top-N output from a profiler and suggest improvements
 
 options:
   -h, --help            show this help message and exit
-  -v, --verbose         Verbose output
   -d, --debug           Debug output
   -e, --echo-input      Echo the input provided to perf-copilot. Useful when input is piped in and you want to see what it is
+  --output-format OUTPUT_FORMAT
+                        Specify the output format for the LLM to use
   -m MODEL, --model MODEL
-                        The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid
-                        options.
+                        The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
+  --max-concurrent-queries MAX_CONCURRENT_QUERIES
+                        Maximum number of parallel queries to OpenAI
 ```
 
 # Feature Requests, Bugs and Suggestions
@@ -132,6 +145,14 @@ remediations.
 
 **Open Issues:**
 
+## debughost
+
+**Description:** Takes a host name and a problem description, and attempts to detect the
+root cause of the problem. The LLM is used to suggest tools to run, and is also used to 
+perform root cause analysis based on the output of those tools. 
+**Status:** In need of real world testing.
+**Open Issues:**
+
 
 ## explainfunction
 
@@ -139,6 +160,16 @@ remediations.
 it's use-cases, explains the function, and then suggest actions the user may take to
 improve the performance of their system if the function is consuming significant
 resources.
+**Status:** Works, and can solve real problems. Ready for integration into our product
+suite for further testing.
+**Open Issues:**
+
+## explainprocess
+
+**Description:** Takes a process, and optionally a list of arguments, and explains what the
+process is, its common use cases, and how it operates when provided with the given
+arguments. Then suggests optimisations that may be applied, if this process is consuming
+significant resources.
 **Status:** Works, and can solve real problems. Ready for integration into our product
 suite for further testing.
 **Open Issues:**
