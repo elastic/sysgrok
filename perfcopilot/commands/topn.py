@@ -196,5 +196,5 @@ def run(args_parser, args):
     if args.echo_input:
         print(topn)
 
-    print_streamed_llm_response(args, prompt.format(topn=topn))
+    print_streamed_llm_response(prompt.format(topn=topn))
     return 0
