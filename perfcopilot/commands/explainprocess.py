@@ -23,9 +23,9 @@ def add_to_command_parser(subparsers):
 explain_prompt = """I am a software engineer. I am trying to understand what a process running on my
 Linux machine does.
 
-Your task is to first desribe what the process is and what its general use cases are. If I also provide you
+Your task is to first describe what the process is and what its general use cases are. If I also provide you
 with the arguments to the process you should then explain its arguments and how they influence the behaviour
-of the. If I do not provide any arguments then explain the behaviour of the process when no arguments are
+of the process. If I do not provide any arguments then explain the behaviour of the process when no arguments are
 provided.
 
 If you do not recognise the process say "No information available for this process". If I provide an argument
@@ -85,7 +85,7 @@ Types of improvements that would be useful to me are improvements that result in
 - Better disk I/O efficiency so that less data is read and written from disk
 
 Make up to five suggestions. Your suggestions must meet all of the following criteria:
-1. Your suggestions should detailed, technical and include concrete examples.
+1. Your suggestions should be detailed, technical and include concrete examples.
 2. Your suggestions should be specific to improving performance of a system in which the {process} process is
 consuming significant CPU
 2. If you suggest replacing the function or library with a more efficient replacement you must suggest at least
