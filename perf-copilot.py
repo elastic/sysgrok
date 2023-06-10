@@ -79,7 +79,7 @@ if __name__ == "__main__":
     and you want to see what it is""")
 
     parser.add_argument("--output-format", type=str, help="Specify the output format for the LLM to use")
-    parser.add_argument("-m", "--model-or-deployment-id", default="gpt-3.5-turbo",
+    parser.add_argument("-m", "--model-or-deployment-id", dest="model", default="gpt-3.5-turbo",
                         help="""The OpenAI model, or Azure deployment ID, to use.""")
     parser.add_argument("--temperature", type=float, default=0, help="ChatGPT temperature. See OpenAI docs.")
     parser.add_argument("--max-concurrent-queries", type=int, default=4,
