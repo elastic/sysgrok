@@ -9,7 +9,7 @@ help = "Explain what a function does and suggest optimisations"
 
 def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
-    parser.add_argument("--no-optimisations", action='store_true', default=False,
+    parser.add_argument("--no-optimizations", action='store_true', default=False,
                         help="Do not suggest optimisations")
     parser.add_argument("library", help="The library or program containing the function")
     parser.add_argument("function", help="The name of the function, or the full function signature")
