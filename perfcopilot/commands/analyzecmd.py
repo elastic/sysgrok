@@ -15,7 +15,7 @@ def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
     parser.add_argument("-p", "--problem-description", help="Optional description of the problem you are investigating")
     parser.add_argument("-t", "--target-host",
-                        help="The host to connect to via ssh. Otherwise commands is run locally.")
+                        help="The host to connect to via ssh. Otherwise command is run locally.")
     parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to execute and analyze")
 
 
@@ -47,9 +47,10 @@ def run(args_parser, args):
     command_output = execute_commands_remote(args.target_host, [args.command])
 
     if args.command not in command_output:
-        logging.error(f"Failed to execute {args.commadn}")
+        logging.error(f"Failed to execute {args.command}")
         sys.exit(1)
 
     max_chars = get_summary_max_chars()
-    summarise_command(args.command, command_output, max_chars, args.problem_description)
+    _, summary = summarise_command(args.command, command_output[args.command], max_chars, args.problem_description)
+    print(summary)
     return 0
