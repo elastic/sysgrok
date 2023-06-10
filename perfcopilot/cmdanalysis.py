@@ -18,8 +18,8 @@ def summarise_command(command, command_output, summary_max_chars, problem_descri
     exit_code, stderr and stdout.
     """
 
-    prompt = """I am a sysadmin. I am logged onto a machine that is experiencing the following
-problem: {problem_description}
+    prompt_with_problem = """I am a sysadmin. I am logged onto a Linux machine that is experiencing the
+following problem: {problem_description}.
 I have executed the command '{command}' to debug that problem. I will provide you with the stdout,
 stderr and exit code of the command. I need you to summarise the output
 of the command, using a maximum of {summary_max_chars} characters. Your summary should only include
@@ -34,13 +34,37 @@ Stderr: {stderr}
 Stdout: {stdout}
 Summary (in {summary_max_chars} or fewer):
 """
-    summary = llm.get_llm_response(prompt.format(
-        problem_description=problem_description, command=command,
-        summary_max_chars=summary_max_chars,
-        exit_code=command_output["exit_code"],
-        stderr=command_output["stderr"],
-        stdout=command_output["stdout"]))
 
+    prompt_without_problem = """I am a sysadmin. I am logged onto a Linux machine and I have executed the
+command '{command}'. I will provide you with the stdout, stderr and exit code of the command. I need you to
+summarise the output of the command, using a maximum of {summary_max_chars} characters.
+
+Command: {command}
+Exit code: {exit_code}
+Stderr: {stderr}
+Stdout: {stdout}
+Summary (in {summary_max_chars} or fewer):
+"""
+
+    if problem_description:
+        logging.debug(f"Summarising command (max chars: {summary_max_chars}): {command}. Problem:'{problem_description}")
+        prompt = prompt_with_problem.format(
+            problem_description=problem_description,
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output["exit_code"],
+            stderr=command_output["stderr"],
+            stdout=command_output["stdout"])
+    else:
+        logging.debug(f"Summarising command (max chars: {summary_max_chars}): {command}")
+        prompt = prompt_without_problem.format(
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output["exit_code"],
+            stderr=command_output["stderr"],
+            stdout=command_output["stdout"])
+
+    summary = llm.get_llm_response(prompt)
     return command, summary
 
 
@@ -131,6 +155,7 @@ def analyse_command_output(commands_output, problem_description, print_each_summ
         example_response,
         len(commands_output))
 
+    logging.debug(f"Asking for a maximum of {max_chars} characters per command summary")
     logging.info(f"Summarising {len(commands_output)} commands")
 
     multiproc_args = [(llm.get_config(), c, o, max_chars, problem_description) for c, o in commands_output.items()]

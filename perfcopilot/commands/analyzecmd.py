@@ -1,80 +1,55 @@
-import os
+import argparse
+import logging
 import sys
 
-import openai
+from perfcopilot import llm
+from perfcopilot.cmdanalysis import summarise_command
+from perfcopilot.cmdexec import execute_commands_remote
 
-from .shared import get_base_messages
 
 command = "analyzecmd"
-help = "Analyze the output of CLI tools to find the root cause of an issue and suggest remediations"
+help = "Summarise the output of a command, optionally with respect to a problem under investigation"
 
 
 def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
-    parser.add_argument("-p", "--problem-description", help="A description of the problem you are investigating")
-    parser.add_argument("-i", "--inputs-directory",
-                        help="""The directory containing the outputs of each command. Each file in the directory must
-    contain the output of a single command. The name of the file must have the format "cmd.output" where "cmd" is the
-    name of the command that produced the output.""")
+    parser.add_argument("-p", "--problem-description", help="Optional description of the problem you are investigating")
+    parser.add_argument("-t", "--target-host",
+                        help="The host to connect to via ssh. Otherwise commands is run locally.")
+    parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to execute and analyze")
 
 
-prompt = """I am a software engineer. I am trying to solve the problem: {problem}. The host experiencing the
-problem is running the Linux operating system. I have executed the {cmd} command. Your task is to analyze the
-output of the command and then do three things.
+def get_summary_max_chars():
+    model = llm.get_model()
+    if model == "gpt-3.5-turbo":
+        max_tokens = 4096
+    elif model == "gpt-4":
+        max_tokens = 8192
+    else:
+        logging.error(f"Unknown model: {model}")
+        sys.exit(-1)
 
-1. Output a summary of the command output, focusing on anything that may relate to the problem I am trying to solve.
-2. Based on the command output, explain the root cause of my problem.  If there is
-insufficient information in the command output to explain the root cause then say "Cannot determine problem root cause
-based on command output" and go to step 3. If there are multiple potential root causes indicated
-by the command output, then list them all. For each potential root cause, concisely explain what in the command output
-indicates that this root cause is likely, then explain how I could resolve the problem if this is the root cause.
-
-The output of the {cmd} is as follows:
-
-{cmd_output}
-"""
-
-
-def analyze_cmd(cmd, cmd_output, args):
-    print(f"Analyzing output from {cmd} ...")
-
-    messages = get_base_messages(args)
-    messages.append({
-        "role": "user",
-        "content": prompt.format(problem=args.problem_description, cmd=cmd, cmd_output=cmd_output)
-    })
-
-    completion = openai.ChatCompletion.create(
-        model=args.model,
-        temperature=args.temperature,
-        stream=True,
-        messages=messages
-    )
-
-    wrote_reply = False
-    for chunk in completion:
-        delta = chunk["choices"][0]["delta"]
-        if "content" not in delta:
-            continue
-        sys.stdout.write((delta["content"]))
-        wrote_reply = True
-
-    if wrote_reply:
-        sys.stdout.write("\n")
+    # Hard code the character to token ratio for now.
+    return max_tokens * 2.5
 
 
 def run(args_parser, args):
-    d = args.inputs_directory
-    first_iter = True
-    for filename in os.listdir(d):
-        if not first_iter:
-            sys.stdout.write("\n")
-            first_iter = False
+    if not args.command:
+        logging.error("Command not provided")
+        sys.exit(1)
 
-        cmd = filename.split(".")[0]
-        with open(os.path.join(d, filename)) as f:
-            cmd_output = f.read()
+    if args.command[0] == '--':
+        args.command = args.command[1:]
 
-        analyze_cmd(cmd, cmd_output, args)
+    args.command = " ".join(args.command)
+    logging.debug(f"Analyzing command: {args.command}")
 
+    command_output = execute_commands_remote(args.target_host, [args.command])
+
+    if args.command not in command_output:
+        logging.error(f"Failed to execute {args.commadn}")
+        sys.exit(1)
+
+    max_chars = get_summary_max_chars()
+    summarise_command(args.command, command_output, max_chars, args.problem_description)
     return 0

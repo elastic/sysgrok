@@ -86,7 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-concurrent-queries", type=int, default=4,
                         help="Maximum number of parallel queries to OpenAI")
 
-    subparsers = parser.add_subparsers(help="The sub-command to execute", dest="command")
+    subparsers = parser.add_subparsers(help="The sub-command to execute", dest="sub_command")
     for v in commands.values():
         v.add_to_command_parser(subparsers)
 
@@ -103,14 +103,14 @@ if __name__ == "__main__":
 
     set_config(LLMConfig(args.model, args.temperature, args.max_concurrent_queries, args.output_format))
 
-    if not args.command:
+    if not args.sub_command:
         parser.print_help(sys.stderr)
         sys.stderr.write("\nNo sub-command selected\n")
         sys.exit(1)
 
-    if args.command not in commands:
+    if args.sub_command not in commands:
         parser.print_help(sys.stderr)
         sys.stderr.write("\nUnknown sub-command\n")
         sys.exit(1)
 
-    sys.exit(commands[args.command].run(parser, args))
+    sys.exit(commands[args.sub_command].run(parser, args))
