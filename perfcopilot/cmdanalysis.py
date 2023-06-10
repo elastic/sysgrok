@@ -7,11 +7,16 @@ from perfcopilot import llm
 
 
 def multiproc_wrapper_summarise_command(llm_config, *args):
+    """Wrapper around summarise_command for use in multiprocessing scenarios. This is necessary
+    as the LLM module makes use of a bunch of environment variables in its configuration, and
+    these must be set anew in each multiprocessing process.
+    """
+
     llm.set_config(llm_config)
     return summarise_command(*args)
 
 
-def summarise_command(command, command_output, summary_max_chars, problem_description):
+def summarise_command(command, command_output, summary_max_chars, problem_description=None):
     """Use the LLM to summarise the output of a command in summary_max_chars or fewer characters.
 
     command should be the command and its arguments. command_output should be a dict with elements
@@ -37,7 +42,10 @@ Summary (in {summary_max_chars} or fewer):
 
     prompt_without_problem = """I am a sysadmin. I am logged onto a Linux machine and I have executed the
 command '{command}'. I will provide you with the stdout, stderr and exit code of the command. I need you to
-summarise the output of the command, using a maximum of {summary_max_chars} characters.
+summarise the output of the command, using a maximum of {summary_max_chars} characters. Your summary should
+give the user an overview of any notable information found in the output of the command. In particular,
+your summary must include any information that points to performance or stability issues with the machine
+or any services running on it.
 
 Command: {command}
 Exit code: {exit_code}
@@ -125,15 +133,15 @@ for a httpd server.
 Check to ensure that the httpd service is actually installed on the host and configured to run."""
 
 
-analyse_summaries_prompt = """I am a sysadmin. I am logged onto a machine that is experiencing a
+analyse_summaries_prompt_with_problem = """I am a sysadmin. I am logged onto a machine that is experiencing a
 problem. I have executed several commands to try to debug the problem. Your task is to analyse
 the output of these commands and, based on their output, form a hypothesis as to what the root
 cause of my problem is, and suggest actions I may take to fix the problem.
 
-I will provide you with the problem description, and then the exit code, stdout, and stderr
-from one or more commands.
+I will provide you with the problem description, and then a summary of the output of one or
+more commands.
 
-You will respond with a summary, a hypothesis as to what the problem
+You will respond with an overall summary, a hypothesis as to what the problem
 is, and a set of recommended actions to fix the problem.
 
 Here is an example good response
@@ -146,14 +154,41 @@ Command summaries:
 {command_summaries}
 Response:"""
 
+analyse_summaries_prompt_without_problem = """I am a sysadmin. I am logged onto a Linux machine.
+I have executed several commands to try to debug the problem. Your task is to analyse
+the output of these commands and, based on their output, alert me to any issues on the
+machine that may impact the performance or stability of any services running on it.
 
-def analyse_command_output(commands_output, problem_description, print_each_summary=False):
-    max_chars = calculate_max_chars_per_command_summary(
-        analyse_summaries_prompt.format(response=example_response,
-                                        problem=problem_description,
-                                        command_summaries=""),
-        example_response,
-        len(commands_output))
+I will provide you with the exit code, stdout, and stderr from one or more commands. You
+will respond with a summary
+Here is an example good response
+
+Response:
+{response}
+
+Command summaries:
+{command_summaries}
+Response:"""
+
+
+def _get_command_summaries(commands_output, problem_description=None):
+    """Use the LLM to summarise the provided commands. The summarisation queries
+    to the LLM are done in parallel.
+    """
+
+    if problem_description:
+        max_chars = calculate_max_chars_per_command_summary(
+            analyse_summaries_prompt_with_problem.format(response=example_response,
+                                                         problem=problem_description,
+                                                         command_summaries=""),
+            example_response,
+            len(commands_output))
+    else:
+        max_chars = calculate_max_chars_per_command_summary(
+            analyse_summaries_prompt_without_problem.format(response=example_response,
+                                                            command_summaries=""),
+            example_response,
+            len(commands_output))
 
     logging.debug(f"Asking for a maximum of {max_chars} characters per command summary")
     logging.info(f"Summarising {len(commands_output)} commands")
@@ -162,6 +197,14 @@ def analyse_command_output(commands_output, problem_description, print_each_summ
     with Pool(min(llm.get_max_concurrent_queries(), len(commands_output))) as p:
         command_summaries = p.starmap(multiproc_wrapper_summarise_command, multiproc_args)
 
+    return command_summaries
+
+
+def analyse_command_output(commands_output, problem_description=None, print_each_summary=False):
+    # Summarise the output of each of the commands
+    command_summaries = _get_command_summaries(commands_output, problem_description)
+
+    # Build a string of the command summaries for inclusion in the prompt
     cs_str_builder = []
     for cs in command_summaries:
         command = cs[0]
@@ -175,5 +218,11 @@ def analyse_command_output(commands_output, problem_description, print_each_summ
             print(f"## Summary for '{c}'")
             print(s)
 
-    llm.print_streamed_llm_response(analyse_summaries_prompt.format(
-        response=example_response, problem=problem_description, command_summaries=cs_str))
+    # Ask the LLM to analyse the combination of the summaries and produce recommendations
+    if problem_description:
+        llm.print_streamed_llm_response(analyse_summaries_prompt_with_problem.format(
+            response=example_response, problem=problem_description, command_summaries=cs_str))
+    else:
+        llm.print_streamed_llm_response(analyse_summaries_prompt_without_problem.format(
+            response=example_response, command_summaries=cs_str))
+
