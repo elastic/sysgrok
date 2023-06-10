@@ -67,5 +67,5 @@ def run(args_parser, args):
     if args.echo_input:
         print(stacktrace)
 
-    print_streamed_llm_response(args, prompt.format(stacktrace=stacktrace))
+    print_streamed_llm_response(prompt.format(stacktrace=stacktrace))
     return 0
