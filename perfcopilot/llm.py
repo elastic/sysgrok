@@ -96,6 +96,24 @@ def get_token_count(data, model):
     return len(enc.encode(data))
 
 
+def get_chat_completion_args(messages, stream=False):
+    kwargs = {
+        "temperature": get_temperature(),
+        "messages": messages,
+        "stream": stream
+    }
+
+    if openai.api_type == "azure":
+        kwargs["deployment_id"] = get_model()
+    elif openai.api_type == "openai":
+        kwargs["model"] = get_model()
+    else:
+        logging.error(f"Unknown API type: {openai.api_type}")
+        sys.exit(1)
+
+    return kwargs
+
+
 def get_llm_response(prompt):
     messages = get_base_messages()
     messages.append({
@@ -103,9 +121,7 @@ def get_llm_response(prompt):
         "content": prompt
     })
     response = openai.ChatCompletion.create(
-        model=get_model(),
-        temperature=get_temperature(),
-        messages=messages,
+        **get_chat_completion_args(messages)
     )
 
     return response["choices"][0]["message"]["content"]
@@ -123,10 +139,7 @@ def print_streamed_llm_response(prompt, conversation=None):
     })
 
     completion = openai.ChatCompletion.create(
-        model=get_model(),
-        temperature=get_temperature(),
-        stream=True,
-        messages=conversation
+        **get_chat_completion_args(conversation, stream=True)
     )
 
     wrote_reply = False

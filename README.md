@@ -21,17 +21,19 @@ It can do things like:
 
 * Take the top most expensive functions and processes identified by a profiler, explain
 the functionality that each provides, and suggest optimisations.
-* Take a host and a description of a problem that host is encountering and automatically 
+* Take a host and a description of a problem that host is encountering and automatically
 debug the issue and suggest remediations.
-* Take source code that has been annotated by a profiler, explain the hot paths, and 
-suggest ways to improve the performance of the code.  
+* Take source code that has been annotated by a profiler, explain the hot paths, and
+suggest ways to improve the performance of the code.
 
 See the Command Overview section below for an overview of the full list of available
-commands that it supports. 
+commands that it supports.
 
 # Installation
 
-1. Copy `.env.example` to `.env` and fill in your OpenAI key.
+1. Copy `.env.example` to `.env` and fill the required variables. The `GAI_API_TYPE` must be either "azure" or "openai",
+and the `GAI_API_KEY` must be your API key. If you are using an Azure endpoint then you must also provide the
+`GAI_API_BASE` and `GAI_API_VERSION` variables. The correct values for these can be found in your Azure portal.
 
 2. Install requirements via pip
 
@@ -148,8 +150,8 @@ remediations.
 ## debughost
 
 **Description:** Takes a host name and a problem description, and attempts to detect the
-root cause of the problem. The LLM is used to suggest tools to run, and is also used to 
-perform root cause analysis based on the output of those tools. 
+root cause of the problem. The LLM is used to suggest tools to run, and is also used to
+perform root cause analysis based on the output of those tools.
 **Status:** In need of real world testing.
 **Open Issues:**
 

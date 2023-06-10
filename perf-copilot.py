@@ -29,8 +29,18 @@ import openai
 from dotenv import load_dotenv
 load_dotenv()
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
+openai.api_key = os.environ["GAI_API_KEY"]
+openai.api_type = os.environ["GAI_API_TYPE"]
+openai.api_base = os.environ["GAI_API_BASE"]
+openai.api_version = os.environ["GAI_API_VERSION"]
 
+if not openai.api_key:
+    sys.stderr.write("You must set the GAI API key\n")
+    sys.exit(1)
+
+if openai.api_type == "azure" and not (openai.api_base and openai.api_version):
+    sys.stderr.write("Azure requires the API base and version to be set")
+    sys.exit(1)
 
 ascii_name = """
                   __                       _ _       _
