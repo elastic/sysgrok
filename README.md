@@ -49,7 +49,7 @@ For now, `perf-copilot` is a command line tool and takes input either via stdin
 or from a file, depending on the command. Usage is as follows:
 
 ```
-usage: ./perf-copilot.py [-h] [-d] [-e] [--output-format OUTPUT_FORMAT] [-m MODEL] [--temperature TEMPERATURE] [--max-concurrent-queries MAX_CONCURRENT_QUERIES]
+usage: ./perf-copilot.py [-h] [-d] [-e] [-c] [--output-format OUTPUT_FORMAT] [-m MODEL] [--temperature TEMPERATURE] [--max-concurrent-queries MAX_CONCURRENT_QUERIES]
                          {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn} ...
 
                   __                       _ _       _
@@ -79,10 +79,11 @@ options:
   -h, --help            show this help message and exit
   -d, --debug           Debug output
   -e, --echo-input      Echo the input provided to perf-copilot. Useful when input is piped in and you want to see what it is
+  -c, --chat            Enable interactive chat after each LLM response
   --output-format OUTPUT_FORMAT
                         Specify the output format for the LLM to use
-  -m MODEL, --model MODEL
-                        The OpenAI model to use. Must be one of the chat completion models. See https://platform.openai.com/docs/models/model-endpoint-compatibility for valid options.
+  -m MODEL, --model-or-deployment-id MODEL
+                        The OpenAI model, or Azure deployment ID, to use.
   --temperature TEMPERATURE
                         ChatGPT temperature. See OpenAI docs.
   --max-concurrent-queries MAX_CONCURRENT_QUERIES
