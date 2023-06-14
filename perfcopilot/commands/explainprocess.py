@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 
 command = "explainprocess"
@@ -121,9 +121,16 @@ def run(args_parser, args):
 
     conversation = print_streamed_llm_response(explain_prompt.format(process=args.process))
 
+    if args.chat:
+        chat(conversation)
+
     if args.no_optimizations:
         return 0
 
     sys.stdout.write("\n")
-    print_streamed_llm_response(optimize_prompt.format(process=args.process), conversation)
+
+    conversation = print_streamed_llm_response(optimize_prompt.format(process=args.process), conversation)
+    if args.chat:
+        chat(conversation)
+
     return 0

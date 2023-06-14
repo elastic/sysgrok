@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 command = "code"
 help = "Summarise profiler-annoted code and suggest optimisations"
@@ -33,5 +33,8 @@ def run(args_parser, args):
     if args.echo_input:
         print(code)
 
-    print_streamed_llm_response(args, prompt.format(code=code))
+    conversation = print_streamed_llm_response(args, prompt.format(code=code))
+    if args.chat:
+        chat(conversation)
+
     return 0

@@ -55,7 +55,8 @@ Summary (in {summary_max_chars} or fewer):
 """
 
     if problem_description:
-        logging.debug(f"Summarising command (max chars: {summary_max_chars}): {command}. Problem:'{problem_description}")
+        logging.debug(
+            f"Summarising command (max chars: {summary_max_chars}): {command}. Problem:'{problem_description}")
         prompt = prompt_with_problem.format(
             problem_description=problem_description,
             command=command,
@@ -225,4 +226,3 @@ def analyse_command_output(commands_output, problem_description=None, print_each
     else:
         llm.print_streamed_llm_response(analyse_summaries_prompt_without_problem.format(
             response=example_response, command_summaries=cs_str))
-

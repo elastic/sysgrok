@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 
 command = "topn"
@@ -196,5 +196,8 @@ def run(args_parser, args):
     if args.echo_input:
         print(topn)
 
-    print_streamed_llm_response(prompt.format(topn=topn))
+    conversation = print_streamed_llm_response(prompt.format(topn=topn))
+    if args.chat:
+        chat(conversation)
+
     return 0

@@ -39,7 +39,8 @@ You should format your output as JSON.
 Here is an example. I will specify the problem. You will tell me the commands to run to debug it.
 
 Problem: Applications on the host are running slowly
-Commands: ["uptime", "top -n1 -b", "ps -ef", "journalctl -b -p warning --no-pager", "vmstat", "mpstat", "free -m", "dmesg | tail -50"]
+Commands: ["uptime", "top -n1 -b", "ps -ef", "journalctl -b -p warning --no-pager", "vmstat", "mpstat",
+"free -m", "dmesg | tail -50"]
 
 Problem: {problem}
 Commands:"""
@@ -48,6 +49,10 @@ Commands:"""
 
 
 def run(args_parser, args):
+    if args.chat:
+        logging.error(f"Chat not implemented for {command}")
+        sys.exit(1)
+
     logging.info("Querying the LLM for commands to run ...")
     commands = ask_llm_for_commands(args.problem_description)
     if not commands:
@@ -55,8 +60,8 @@ def run(args_parser, args):
         return -1
 
     logging.info("LLM suggested running the following commands: ")
-    for command in commands:
-        logging.info(f"    {command}")
+    for c in commands:
+        logging.info(f"    {c}")
 
     if not args.yolo:
         if not query_yes_no("Allow execution of the above commands with sudo?"):

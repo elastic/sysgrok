@@ -1,6 +1,6 @@
 import sys
 
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 
 command = "explainfunction"
@@ -69,11 +69,20 @@ def run(args_parser, args):
     if args.echo_input:
         print(f"{args.lib} {args.func}")
 
-    conversation = print_streamed_llm_response(explain_prompt.format(library=args.library, function=args.function))
+    conversation = print_streamed_llm_response(
+        explain_prompt.format(library=args.library, function=args.function))
+
+    if args.chat:
+        chat(conversation)
 
     if args.no_optimizations:
         return 0
 
     sys.stdout.write("\n")
-    print_streamed_llm_response(optimize_prompt.format(library=args.library, function=args.function), conversation)
+    conversation = print_streamed_llm_response(
+        optimize_prompt.format(library=args.library, function=args.function), conversation)
+
+    if args.chat:
+        chat(conversation)
+
     return 0

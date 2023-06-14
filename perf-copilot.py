@@ -77,7 +77,8 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--echo-input", action="store_true",
                         help="""Echo the input provided to perf-copilot. Useful when input is piped in
     and you want to see what it is""")
-
+    parser.add_argument("-c", "--chat", action="store_true",
+                        help="Enable interactive chat after each LLM response")
     parser.add_argument("--output-format", type=str, help="Specify the output format for the LLM to use")
     parser.add_argument("-m", "--model-or-deployment-id", dest="model", default="gpt-3.5-turbo",
                         help="""The OpenAI model, or Azure deployment ID, to use.""")

@@ -1,4 +1,4 @@
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 command = "findfaster"
 help = "Search for faster alternatives to a provided library or program"
@@ -49,5 +49,7 @@ def run(args_parser, args):
     if args.echo_input:
         print(target)
 
-    print_streamed_llm_response(software_type_prompts[args.software_type].format(target=args.target))
+    conversation = print_streamed_llm_response(software_type_prompts[args.software_type].format(target=args.target))
+    if args.chat:
+        chat(conversation)
     return 0

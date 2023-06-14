@@ -35,5 +35,3 @@ def execute_commands_remote(host, commands):
                 logging.error(f"Failed to execute '{command}' on {host}")
 
     return res
-
-

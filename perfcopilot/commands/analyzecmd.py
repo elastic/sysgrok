@@ -34,6 +34,10 @@ def get_summary_max_chars():
 
 
 def run(args_parser, args):
+    if args.chat:
+        logging.error(f"Chat not implemented for {command}")
+        sys.exit(1)
+
     if not args.command:
         logging.error("Command not provided")
         sys.exit(1)

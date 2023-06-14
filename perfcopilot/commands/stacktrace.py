@@ -1,7 +1,7 @@
 import sys
 import argparse
 
-from perfcopilot.llm import print_streamed_llm_response
+from perfcopilot.llm import print_streamed_llm_response, chat
 
 
 command = "stacktrace"
@@ -67,5 +67,7 @@ def run(args_parser, args):
     if args.echo_input:
         print(stacktrace)
 
-    print_streamed_llm_response(prompt.format(stacktrace=stacktrace))
+    conversation = print_streamed_llm_response(prompt.format(stacktrace=stacktrace))
+    if args.chat:
+        chat(conversation)
     return 0
