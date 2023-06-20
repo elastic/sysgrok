@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 
 from perfcopilot.llm import print_streamed_llm_response, chat
@@ -192,6 +193,10 @@ to another part of your report instead of repeating content.
 
 
 def run(args_parser, args):
+    if args.chat and args.infile == sys.stdin:
+        logging.error("You cannot use --chat while also reading data from stdin")
+        sys.exit(1)
+
     topn = args.infile.read()
     if args.echo_input:
         print(topn)
