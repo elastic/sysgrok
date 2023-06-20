@@ -25,6 +25,8 @@ def get_summary_max_chars():
         max_tokens = 4096
     elif model == "gpt-4":
         max_tokens = 8192
+    elif model == "gpt-4-32k":
+        max_tokens = 32768
     else:
         logging.error(f"Unknown model: {model}")
         sys.exit(-1)

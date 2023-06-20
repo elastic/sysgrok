@@ -90,6 +90,8 @@ def calculate_max_chars_per_command_summary(prompt, example_response, num_comman
         max_tokens = 4096
     elif model == "gpt-4":
         max_tokens = 8192
+    elif model == "gpt-4-32k":
+        max_tokens = 32768
     else:
         print(f"Unknown model: {model}")
         sys.exit(-1)
