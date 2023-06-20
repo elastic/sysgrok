@@ -162,16 +162,16 @@ def print_streamed_llm_response(prompt, conversation=None):
 
 def chat(conversation):
     print("--- Start chat with the LLM ---")
-    print("Input 'continue' or 'c' to exit the chat and continue operation")
-    print("Input 'quit' or 'q' to exit the chat and exit the copilot")
+    print("Input 'c' to exit the chat and continue operation")
+    print("Input 'q' to exit the chat and exit the copilot")
     user_input = ""
 
     while True:
         user_input = input("chat> ")
-        if user_input == "c" or user_input == "continue":
+        if user_input == "c":
             print("--- End chat with the LLM ---")
             return conversation
-        elif user_input == "q" or user_input == "quit":
+        elif user_input == "q":
             print("--- End chat with the LLM ---")
             sys.exit(0)
 
