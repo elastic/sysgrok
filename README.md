@@ -212,12 +212,6 @@ just running the `explainfunction` command on each entry in the Top N.
 
 # Examples
 
-The following has some examples of how to use `perf-copilot` to solve common
-problems that come up when profiling and optimising a system. Across all
-commands, the purpose of `perf-copilot` is two fold: firstly, help you understand
-your profiling data, and secondly help you come up with ideas for optimising
-your system.
-
 Note 1: The output of `perf-copilot` is heavily dependent on the input prompts, and
 I am still experimenting with them. This means that the output you get from
 running `perf-copilot` may differ from what you see below. It may also vary based
@@ -241,182 +235,7 @@ the most expensive libraries and functions in their system, and then going on
 a hunt for an optimised version. The `findfaster` command solves this problem
 for you. Here are some examples.
 
-### Finding a faster replacement for gzip
-
-```
-./perf-copilot.py findfaster gzip
-gzip is a file compression utility that uses the DEFLATE algorithm. It is
-widely used and supported on most platforms. However, it is not the fastest
-or most memory-efficient compression library available.
-
-Here are three libraries that are confirmed to be faster and more
-memory-efficient than gzip:
-
-1. Zstandard (zstd): Zstandard is a modern compression library that provides
-high compression ratios and fast decompression speeds. It is optimized for
-modern CPUs and supports SIMD instructions. Zstandard is designed to be a
-drop-in replacement for gzip and can be used with existing tools and
-applications.
-
-2. LZ4: LZ4 is a compression library that provides fast compression and
-decompression speeds. It is optimized for speed and uses a simple compression
-algorithm that is easy to implement. LZ4 is designed to be a drop-in
-replacement for gzip and can be used with existing tools and applications.
-
-3. Brotli: Brotli is a compression library that provides high compression
-ratios and fast decompression speeds. It is optimized for modern CPUs and
-supports SIMD instructions. Brotli is designed to be a drop-in replacement
-for gzip and can be used with existing tools and applications. Brotli is
-used by popular web browsers such as Chrome and Firefox to compress web
-content.
-```
-
-### Finding a faster replacement for Python's JSON library
-
 [![asciicast](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT.svg)](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT)
-
-## Explaining a stack trace and suggesting optimisations
-
-Working with CPU profilers involves a lot of time looking at stack traces,
-trying to understand them, and then trying to deduce ways to optimise the
-software based on that understanding. The `stacktrace` command helps with
-this. It will provide you with an example of the important functions in a
-stack trace, and then make some suggestions as to things you may be able
-to do to optimise your software. The `stacktrace` command is fairly
-resilient to variations in the format of the stacktrace provided, so in
-theory you should be able to just copy/paste in data from your profiler
-of choice.
-
-In this first example we copy and paste a stacktrace directly from the
-Elastic Universal Profiler UI.
-
-```
-$ perf-copilot.py stacktrace
-vmlinux: copy_user_enhanced_fast_string
-vmlinux+0xa1fc2d
-18
-vmlinux: copy_page_to_iter
-vmlinux+0x50fd62
-17
-vmlinux: generic_file_read_iter
-vmlinux+0x211f8e
-16
-vmlinux: ext4_file_read_iter
-vmlinux+0x386215
-15
-vmlinux: new_sync_read
-vmlinux+0x2c4e51
-14
-vmlinux: __vfs_read
-vmlinux+0x2c8008
-13
-vmlinux: vfs_read
-vmlinux+0x2c80ad
-12
-vmlinux: ksys_read
-vmlinux+0x2c8246
-11
-vmlinux: __x64_sys_read
-vmlinux+0x2c8299
-10
-vmlinux: do_syscall_64
-vmlinux+0x272d
-9
-vmlinux: entry_SYSCALL_64_after_hwframe
-vmlinux+0xc0008b
-
-This stack trace shows a read operation on a file system, specifically an ext4
-file system. The function `copy_user_enhanced_fast_string` is called to copy a
-string from user space to kernel space. This is followed by `copy_page_to_iter`
-which copies data from a page to an iterator. Then `generic_file_read_iter` is
-called to read data from a file. This function calls `ext4_file_read_iter`
-which is specific to the ext4 file system. The function `new_sync_read` is
-called to perform synchronous read operations. This function calls
-`__vfs_read` which is a generic read function for virtual file systems.
-Finally, `ksys_read` and `__x64_sys_read` are called to perform the actual
-read operation.
-
-To optimise this software, we need to identify the bottleneck in the stack
-trace. From the stack trace, it appears that the read operation is the most
-CPU-intensive operation. Therefore, we can try to optimise the read operation
-by reducing the number of read operations or by making the read operation more
-efficient. Here are some suggestions:
-
-1. Reduce the number of read operations: If the application is reading the
-same data repeatedly, we can cache the data in memory to reduce the number of
-read operations.
-
-2. Use asynchronous I/O: Asynchronous I/O can help to reduce the amount of
-time spent waiting for I/O operations to complete. This can be achieved by
-using non-blocking I/O or by using threads to perform I/O operations in the
-background.
-
-3. Use memory-mapped files: Memory-mapped files can help to reduce the number
-of read operations by mapping the file directly into memory. This can improve
-performance by reducing the amount of data that needs to be read from disk.
-
-4. Use a faster file system: If the ext4 file system is the bottleneck, we
-can try using a faster file system such as XFS or Btrfs.
-
-5. Use a faster storage device: If the storage device is the bottleneck, we
-can try using a faster storage device such as an SSD or NVMe drive.
-```
-
-In this second example, we will copy and paste in a stack trace from the `perf`
-tool.
-
-```
-$ ./perf-copilot.py stacktrace
--   64.57%  gzip     gzip                                 [.] longest_match
-   - 64.44% longest_match
-      - 64.10% zip
-           treat_file.part.0
-           treat_file.part.0
-           main
-           __libc_start_call_main
-           __libc_start_main@@GLIBC_2.34
-           _start
-Based on the stack trace, the software is running the gzip compression
-algorithm on a file. The function `longest_match` is consuming the most CPU
-time, followed by `zip` and `treat_file.part.0`.
-
-`longest_match` is a function in the gzip algorithm that searches for the
-longest  matching string in the input data. It is a critical part of the
-compression process and is called repeatedly during compression.
-
-`zip` is likely a function that handles the overall compression process,
-including calling `longest_match` and other functions.
-
-`treat_file.part.0` is likely a function that handles the input and output
-of the file being compressed.
-
-The bottleneck in this stack trace is the `longest_match` function, which
-is consuming the majority of the CPU time. This suggests that the compression
- algorithm is spending a lot of time searching for matching strings in the
- input data.
-
-To improve performance, some actions that could be taken include:
-
-1. Optimize the `longest_match` function: This could involve analyzing the
- algorithm and finding ways to make it more efficient. For example, using
- a more efficient data structure for searching or optimizing the search
- algorithm itself.
-
-2. Use a different compression algorithm: If the `longest_match` function
-cannot be optimized further, it may be worth exploring other compression
-algorithms that are more efficient. For example, the LZ4 algorithm is
-known for its fast compression and decompression speeds.
-
-3. Use parallel processing: If the input file is large, it may be worth
-exploring parallel processing to speed up the compression process. This
-could involve splitting the file into smaller chunks and compressing them
-in parallel.
-
-Overall, improving the performance of the gzip compression algorithm will
- likely involve a combination of optimizing the `longest_match` function,
-  exploring alternative compression algorithms, and potentially using
-  parallel processing.
-```
 
 ## Analysing the TopN functions and suggesting optimisations
 
@@ -434,77 +253,9 @@ with many of them.
 The `perf-copilot topn` command helps with this. Provide it with your Top-N, and
 it will try to summarise what each program, library and function is doing, as
 well as providing you with some suggestions as to what you might do to
-optimise your system. In the following we paste in some data from `perf`, but
-you could also copy/paste from your favourite commercial profiler of choice.
-The ideal format is similar to perfs, with a header line describing each
-column, followed by the data, but `perf-copilot` will make a fair attempt at
-interpreting the data even if it doesn't follow this exact format.
+optimise your system.
 
-```
-$ ./perf-copilot.py topn
-# Children      Self  Command  Shared Object  Symbol
-# ........  ........  .......  .............  ......
-#
-    64.57%    64.57%  gzip     gzip                 [.] longest_match
-    14.44%    14.44%  gzip     gzip                 [.] zip
-     5.41%     5.41%  gzip     gzip                 [.] updcrc
-     3.74%     3.74%  gzip     gzip                 [.] compress_block
-     3.33%     3.33%  gzip     gzip                 [.] send_bits
-     2.93%     2.93%  gzip     gzip                 [.] ct_tally
-     2.08%     2.08%  gzip     gzip                 [.] pqdownheap
-     0.39%     0.39%  gzip     gzip                 [.] fill_window
-     0.36%     0.36%  gzip     gzip                 [.] build_tree.lto_priv.0
-     0.33%     0.33%  gzip     [kernel.kallsyms]    [k] copy_user_enhanced_fast_string
-
-The system is running the gzip compression program, and the profiler has
-identified the most expensive functions in terms of CPU time.
-
-gzip: gzip is a file compression program that uses the Lempel-Ziv algorithm
-for compression. It is commonly used to compress files for storage or
-transmission. The functions executed in gzip are as follows:
-    * longest_match: This function is responsible for finding the longest
-        matching string in the input data. It is a critical part of the
-        Lempel-Ziv algorithm used by gzip.
-    * zip: This function is responsible for compressing the input data using
-        the Lempel-Ziv algorithm.
-    * updcrc: This function updates the cyclic redundancy check (CRC) value
-        used to verify the integrity of the compressed data.
-    * compress_block: This function compresses a block of input data using
-        the Huffman coding algorithm.
-    * send_bits: This function sends a bit string to the output buffer.
-    * ct_tally: This function updates the Huffman coding tree used to compress
-        the input data.
-    * pqdownheap: This function is used to maintain the priority queue used by
-        the Huffman coding algorithm.
-    * fill_window: This function fills the input buffer with data from the
-        input file.
-    * build_tree.lto_priv.0: This function builds the Huffman coding tree used
-        to compress the input data.
-
-[kernel.kallsyms]: This library is part of the Linux kernel and provides a
-symbol table of kernel functions. The function executed in this library is:
-    * copy_user_enhanced_fast_string: This function is used to copy a string
-         from user space to kernel space.
-
-Based on the profiler output, the bottleneck in the system is the gzip
-compression algorithm, specifically the longest_match function, which is
-responsible for finding the longest matching string in the input data. This
-function accounts for 64.57% of the CPU time spent by the program.
-
-To improve the performance of the system, the user may take the following
-actions:
-    1. Use a faster compression algorithm, such as LZ4 or Zstandard, which
-        are designed to be faster than the Lempel-Ziv algorithm used by gzip.
-    2. Use a multi-threaded compression library, such as zlib-ng, which can
-        take advantage of multiple CPU cores to improve performance.
-    3. Increase the amount of available memory to the program, which can reduce
-         the amount of time spent on memory allocation and improve overall
-         performance.
-    4. Use a hardware accelerator, such as a GPU or FPGA, to offload the
-        compression workload from the CPU and improve performance.
-    5. Use a more powerful CPU with a higher clock speed or more cores to
-        improve the performance of the compression algorithm.
-```
+[![asciicast](https://asciinema.org/a/Iv4NYKpbcccHx742kY1FMfbap.svg)](https://asciinema.org/a/Iv4NYKpbcccHx742kY1FMfbap)
 
 ## Explaining a specific function and suggesting optimisations
 
@@ -513,110 +264,24 @@ If you know a particular function is using signficant CPU then, using the
 specific function, and for optimistion suggestions, instead of asking about
 the entire Top N.
 
-```
-$ ./perf-copilot.py explainfunction libc malloc
-Library description: libc is a C standard library that provides a set of
-functions for basic operations such as input/output, memory allocation,
-string manipulation, and math operations.
-
-Library use-cases: The libc library is typically used in C programming to
-provide basic functionality for applications and system software. It is
-commonly used in operating systems, embedded systems, and other low-level
-programming tasks.
-
-Function description: The malloc function in libc is used to dynamically
-allocate memory during runtime. It takes a size parameter as input and
-returns a pointer to the allocated memory block. The allocated memory can be
-used for storing data structures, arrays, and other objects. The memory block
-is not initialized, so it may contain garbage data. The function returns
-NULL if the allocation fails. The allocated memory should be freed using
-the free function when it is no longer needed to avoid memory leaks.
-
-Here are some suggestions as to how you might optimize your system if malloc
-in libc is consuming significant CPU resources:
-
-1. Use a memory pool: Instead of calling malloc and free for each memory
-allocation and deallocation, use a memory pool to pre-allocate a fixed
-amount of memory. This can reduce the overhead of calling malloc and free
-repeatedly and improve performance. For example, you can use the memory pool
-implementation provided by the Apache Portable Runtime (APR) library.
-
-2. Use a custom allocator: Implement a custom allocator that is optimized for
-your specific use case. For example, if you know that your application
-frequently allocates and deallocates small objects, you can implement an
-allocator that uses a fixed-size block allocation scheme. This can reduce the
-overhead of calling malloc and free and improve performance.
-
-3. Use a different memory allocation library: Consider using a different
-memory allocation library that is optimized for your specific use case. For
-example, jemalloc is a memory allocation library that is designed to be
-scalable and efficient in multi-threaded environments. It can be used as a
-drop-in replacement for malloc in many cases.
-
-4. Reduce memory fragmentation: Memory fragmentation can occur when there are
-many small gaps between allocated memory blocks. This can lead to inefficient
-use of memory and increased overhead for malloc and free. To reduce memory
-fragmentation, you can use a memory allocator that supports memory
-compaction, or you can implement your own memory compaction scheme.
-
-5. Use a different data structure: If your application frequently allocates
-and deallocates objects of the same size, consider using a different data
-structure that is optimized for this use case. For example, you can use a
-memory pool allocator to allocate and deallocate objects of the same size
-more efficiently. Alternatively, you can use a slab allocator to allocate and
-deallocate objects of different sizes more efficiently.
-```
+[![asciicast](https://asciinema.org/a/lErwolZTG21bgxGPYiXgSwab1.svg)](https://asciinema.org/a/lErwolZTG21bgxGPYiXgSwab1)
 
 ## Analysing command output, diagnosing issues, and suggesting remdiations
 
-The `analyzecmd` command takes as input a problem description and the output
-of one or more Linux commands. It then analyses the command output for clues
-as to the root cause of the problem, and suggest remediations.
+The `analyzecmd` command takes a host and one or more Linux commands to execute.
+It connects to the host, executes the commands and summarises the results. You can
+also provide it with an optional description of an issue you are investigating, and
+the command output will be summarised with respect to that problem.
 
-The following example is analysing the output of the `top` command, which was
-run on a host that had become unresponsive while running python tests and
-a compilation job that was using too many cores.
+This first example shows how one or more commands can be executed.
 
-```
-$ ./perf-copilot.py -m gpt-4 analyzecmd -p "My host has stopped responding" -i /tmp/outputs
-Analyzing output from top ...
-1. Summary of the command output:
+[![asciicast](https://asciinema.org/a/SHGe9XQnehXmKAsstVMnbEUAz.svg)](https://asciinema.org/a/SHGe9XQnehXmKAsstVMnbEUAz)
 
-- High load average: 6.52, 1.92, 0.68
-- 16 tasks running
-- CPU usage: 90.6% user, 9.4% system
-- Memory usage: 1244.4 MiB used, 8467.4 MiB free
-- Swap: not configured
-- Multiple cc1 and python processes consuming high CPU
+We can also use `analyzecmd` to analyse commands that produce logs.
 
-2. Potential root causes:
+[![asciicast](https://asciinema.org/a/ILYKfhfmHq6qFgmx5h8gTqTCr.svg)](https://asciinema.org/a/ILYKfhfmHq6qFgmx5h8gTqTCr)
 
-a) High CPU usage by multiple cc1 and python processes:
-- The output shows several cc1 and python processes consuming a significant
-amount of CPU, which could be causing the host to become unresponsive.
-- Solution: Investigate the purpose of these processes and determine if they
-are necessary. If not, terminate them or optimize their performance. If they
-are necessary, consider distributing the workload across multiple hosts or
-upgrading the host's hardware.
+And in this final example we execute and analyze the commands recommended by
+Brendan Gregg  in his article "Linux Performance Analysis in 60 seconds".
 
-b) High load average:
-- The load average values are high, especially the 1-minute load
-average (6.52), indicating that the system is overloaded.
-- Solution: Identify the processes causing the high load and optimize their
-performance, distribute the workload across multiple hosts, or upgrade the
-host's hardware.
-
-c) Insufficient memory:
-- Although there is still free memory available, it is possible that some
-processes are consuming more memory than expected, causing the host to
-become unresponsive.
-- Solution: Monitor memory usage over time and identify any processes with
-memory leaks or excessive memory consumption. Optimize their performance or
-consider upgrading the host's hardware.
-
-d) Swap not configured:
-- The host does not have swap configured, which could lead to issues if the
-system runs out of memory.
-- Solution: Configure swap space to provide additional memory resources in
-case the system runs out of physical memory.
-```
+[![asciicast](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC.svg)](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC)
