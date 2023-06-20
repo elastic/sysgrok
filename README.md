@@ -1,6 +1,6 @@
 `perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
-LLMs can be used to help SWEs and SREs to optimise the performance of their systems
-and resolve stability and reliability problems.
+LLMs can be used to help SWEs and SREs to optimise the performance of their systems, debug issues, and 
+resolve stability and reliability problems.
 
 It can do things like:
 
