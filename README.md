@@ -1,18 +1,3 @@
-```
-                  __                       _ _       _
-                 / _|                     (_) |     | |
- _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
-| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
-| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
-| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
-| |                                 | |
-|_|                                 |_|
-
-Performance analysis and optimisation with LLMs
-
-Contact: sean.heelan@elastic.co
-```
-
 `perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
 LLMs can be used to help SWEs and SREs to optimise the performance of their systems
 and resolve stability and reliability problems.
