@@ -36,6 +36,12 @@ Your task is to suggest a list of up to ten Linux commands that I should run
 that will provide information I can use to debug this problem.
 You should format your output as JSON.
 
+You must never suggest a command that has a placeholder for a port or pid. e.g. <port> or <pid> must
+never appear in the suggested command, or any other placeholder.
+
+All commands that you suggest must exit after a maximum of 10 seconds. You must provide the arguments
+to the command that will cause it to exit before this time limit.
+
 Here is an example. I will specify the problem. You will tell me the commands to run to debug it.
 
 Problem: Applications on the host are running slowly
