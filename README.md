@@ -29,6 +29,13 @@ suggest ways to improve the performance of the code.
 See the Command Overview section below for an overview of the full list of available
 commands that it supports.
 
+Here's an example using the `analyzecmd` sub-command, which connects to a remote host,
+executes one or more commands, and summarises the result. The demo shows how this can be
+used to automate the process described in Brendan Gregg's article -
+[Linux Performance Analysis in 60 seconds](https://www.brendangregg.com/Articles/Netflix_Linux_Perf_Analysis_60s.pdf).
+
+[![asciicast](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC.svg)](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC)
+
 # Installation
 
 1. Copy `.env.example` to `.env` and fill the required variables. The `GAI_API_TYPE` must be either "azure" or "openai",
