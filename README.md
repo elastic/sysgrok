@@ -273,34 +273,7 @@ content.
 
 ### Finding a faster replacement for Python's JSON library
 
-```
-$ perf-copilot.py findfaster "python json"
-Python json is a built-in module that provides methods for encoding and
-decoding JSON data. It is a widely used library for working with JSON data
-in Python. However, it may not be the most performant or memory-efficient
-option for large datasets.
-
-Here are some suggested libraries that can be used as alternatives to python
-json for high performance and scalability:
-
-1. ujson: This library is a drop-in replacement for python json and is written
-in C. It is highly optimized for speed and memory efficiency, and can be up to
-10 times faster than python json. It also supports encoding and decoding of
-custom Python objects.
-
-2. rapidjson: This library is a Python wrapper for the C++ rapidjson library.
-It is designed for high performance and supports SIMD instructions for faster
-processing. It also provides a simple API for encoding and decoding JSON data.
-
-3. orjson: This library is a fast, pure Python JSON library that is optimized
-for speed and memory efficiency. It is up to 20 times faster than python json
-and supports encoding and decoding of custom Python objects.
-
-4. simdjson: This library is written in C++ and provides a Python wrapper for
-SIMD-accelerated JSON parsing. It is designed for high performance and can be
-up to 4 times faster than other JSON libraries. It also supports streaming and
-incremental parsing of large JSON files.
-```
+[![asciicast](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT.svg)](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT)
 
 ## Explaining a stack trace and suggesting optimisations
 
