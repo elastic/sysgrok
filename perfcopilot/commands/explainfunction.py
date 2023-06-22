@@ -64,7 +64,7 @@ Make up to five suggestions. Your suggestions must meet all of the following cri
 1. Your suggestions should detailed, technical and include concrete examples.
 2. Your suggestions should be specific to improving performance of a system in which the {function} function from
 the {library} library is consuming significant CPU.
-2. If you suggest replacing the function or library with a more efficient replacement you must suggest at least
+3. If you suggest replacing the function or library with a more efficient replacement you must suggest at least
 one concrete replacement.
 
 If you know of fewer than five ways to improve the performance of a system in which the {function} function from the
