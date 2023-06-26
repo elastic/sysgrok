@@ -1,5 +1,5 @@
 `perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
-LLMs can be used to help SWEs and SREs to optimise the performance of their systems, debug issues, and 
+LLMs can be used to help SWEs and SREs to optimise the performance of their systems, debug issues, and
 resolve stability and reliability problems.
 
 It can do things like:
@@ -183,3 +183,16 @@ And in this final example we execute and analyze the commands recommended by
 Brendan Gregg  in his article "Linux Performance Analysis in 60 seconds".
 
 [![asciicast](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC.svg)](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC)
+
+## Automatically debug a problem on a host
+
+The `debughost` command takes a host and a problem description and then:
+
+1. Queries the LLM for commands to run that may generate information useful in
+debugging the problem.
+2. Connects to the host via ssh and executes the commands
+3. Uses the LLM to summarise the output of each command, individually.
+4. Concatenates the summaries and passes them to the LLM to ask for a report on
+the likely source of the problem the user is facing.
+
+[![asciicast](https://asciinema.org/a/3My9yInEUqWau0HSZANwD1n0F.svg)](https://asciinema.org/a/3My9yInEUqWau0HSZANwD1n0F)
