@@ -52,7 +52,7 @@ def execute_commands_remote(host: str, commands: list) -> dict:
                 logging.debug(f"Executing '{command}' on {host}")
 
                 try:
-                    e = conn.sudo(command, hide=True, timeout=20, warn=True)
+                    e = conn.run(command, hide=True, timeout=20, warn=True)
                     if e.ok:
                         logging.debug(f"stdout from {command}: {e.stdout}")
                     else:
