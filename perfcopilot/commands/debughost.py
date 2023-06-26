@@ -62,8 +62,12 @@ to the command that will cause it to exit before this time limit.
 Here is an example. I will specify the problem. You will tell me the commands to run to debug it.
 
 Problem: Applications on the host are running slowly
-Commands: ["uptime", "top -n1 -b", "ps -ef", "journalctl -b -p warning --no-pager", "vmstat", "mpstat",
-"free -m", "dmesg | tail -50"]
+Command line tools: {{
+    "uptime": "This command displays the time the system has been running without a restart, the number of users currently logged in, and the system load averages for the past 1, 5, and 15 minutes. If the load average is higher than your CPU count, it can indicate your system is overloaded which might be causing your application slowdown.",
+    "top -n1 -b": "This command provides a dynamic real-time view of the running system. It displays system summary information and a list of tasks currently being managed by the kernel. The '-n1 -b' options make it run only once, in batch mode. This output helps identify processes that are consuming excessive CPU, memory, and other resources, which could be contributing to the slow performance.",
+    "ps -ef": "This command provides a snapshot of all current processes. It can help identify any unexpected or resource-intensive processes that could be impacting the performance of your applications.",
+    "journalctl -b -p warning --no-pager": "This command fetches and displays system logs from the current boot, with a priority level of warning or higher, and without using a pager (like less or more). It will be useful to check for any system or application warnings or errors that might indicate why the applications are running slow.",
+}}
 
 Problem: {problem}
 Commands:"""
