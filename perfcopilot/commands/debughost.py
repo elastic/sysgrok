@@ -34,6 +34,8 @@ def add_to_command_parser(subparsers):
                         help="A description of the problem you are investigating. Be as detailed as possible.")
     parser.add_argument("-t", "--target-host", required=True,
                         help="The host to connect to via ssh. Otherwise commands are run locally.")
+    parser.add_argument("-e", "--explain-commands", action="store_true",
+                        help="Print the explanations the LLM gives for each command it suggests")
     parser.add_argument("--print-summaries", action="store_true",
                         help="Include the command summaries in the final report")
     parser.add_argument("--yolo", action="store_true", default=False,
@@ -102,12 +104,13 @@ def run(args_parser, args):
         sys.stderr.write("LLM did not return any commands to run")
         return -1
 
-    for cmd, reason in commands.items():
-        logging.debug(f"{cmd} - {reason}")
-
     logging.info("LLM suggested running the following commands: ")
-    for cmd in commands:
-        logging.info(f"    {cmd}")
+    for cmd, reason in commands.items():
+        if args.explain_commands:
+            logging.info(f"    {cmd} - {reason}")
+        else:
+            logging.info(f"    {cmd}")
+            logging.debug(f"        {reason}")
 
     if not args.yolo:
         if not query_yes_no("Allow execution of the above commands with sudo?"):
