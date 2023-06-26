@@ -21,9 +21,25 @@ import logging
 import fabric
 
 
-def execute_commands_remote(host, commands):
-    """Execute the provided commands on the specified host. The results are return as a dict where
-    the key is the command and the value is the output.
+@dataclass
+class CommandResult:
+    """Contains the result of executing a command, including its exit code, stdout and stderr"""
+
+    command: str
+    exit_code: int
+    stdout: str
+    stderr: str
+
+
+def execute_commands_remote(host: str, commands: list) -> dict:
+    """Executes the provided commands on the specified host.
+
+    Args:
+        host: The host to connect to. Must be defined in the ssh .config file for the system.
+        commands: A list of commands and their arguments.
+
+    Returns:
+        command output: A dictionary mapping commands to CommandResults.
     """
 
     res = {}
@@ -44,7 +60,7 @@ def execute_commands_remote(host, commands):
                         logging.debug(f"stdout: {e.stdout}")
                         logging.debug(f"stderr: {e.stderr}")
 
-                    res[command] = {"exit_code": e.return_code, "stderr": e.stderr, "stdout": e.stdout}
+                    res[command] = CommandResult(command, e.return_code, e.stdout, e.stderr)
                     success = True
                 except Exception as e:
                     logging.error(f"Failed to execute '{command}' on {host}. Exception: {e}")

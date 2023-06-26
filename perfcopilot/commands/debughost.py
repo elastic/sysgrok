@@ -82,9 +82,12 @@ def run(args_parser, args):
         sys.stderr.write("LLM did not return any commands to run")
         return -1
 
+    for cmd, reason in commands.items():
+        logging.debug(f"{cmd} - {reason}")
+
     logging.info("LLM suggested running the following commands: ")
-    for c in commands:
-        logging.info(f"    {c}")
+    for cmd in commands:
+        logging.info(f"    {cmd}")
 
     if not args.yolo:
         if not query_yes_no("Allow execution of the above commands with sudo?"):
@@ -93,5 +96,5 @@ def run(args_parser, args):
 
     logging.info(f"{len(commands)} commands in total to execute ...")
 
-    command_output = execute_commands_remote(args.target_host, commands)
+    command_output = execute_commands_remote(args.target_host, commands.keys())
     analyse_command_output(command_output, args.problem_description, args.print_summaries)

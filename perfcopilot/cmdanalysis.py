@@ -78,17 +78,17 @@ Summary (in {summary_max_chars} or fewer):
             problem_description=problem_description,
             command=command,
             summary_max_chars=summary_max_chars,
-            exit_code=command_output["exit_code"],
-            stderr=command_output["stderr"],
-            stdout=command_output["stdout"])
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            stdout=command_output.stdout)
     else:
         logging.debug(f"Summarising command (max chars: {summary_max_chars}): {command}")
         prompt = prompt_without_problem.format(
             command=command,
             summary_max_chars=summary_max_chars,
-            exit_code=command_output["exit_code"],
-            stderr=command_output["stderr"],
-            stdout=command_output["stdout"])
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            stdout=command_output.stdout)
 
     summary = llm.get_llm_response(prompt)
     return command, summary
@@ -220,7 +220,16 @@ def _get_command_summaries(commands_output, problem_description=None):
     return command_summaries
 
 
-def analyse_command_output(commands_output, problem_description=None, print_each_summary=False):
+def analyse_command_output(commands_output: dict, problem_description: str = None, print_each_summary: bool = False):
+    """Use the LLM to analyse and summarise the output of one or more commands. The result is
+    streamed to stdout.
+
+    Args:
+        commands_output: A dict mapping from commands to CommandResult objects for that command.
+        problem_description: The problem description to analyse the commands with respect to.
+        print_each_summary: If true, then print each command summary.
+    """
+
     # Summarise the output of each of the commands
     command_summaries = _get_command_summaries(commands_output, problem_description)
 
