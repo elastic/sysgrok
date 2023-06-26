@@ -43,7 +43,7 @@ def add_to_command_parser(subparsers):
 
 
 def ask_llm_for_commands(problem_description):
-    """Get a list of commands to run to solve the  problem described by args.problem_description.
+    """Get a list of commands to run to solve the problem described by args.problem_description.
 
     Returns a list of strings, where each entry is a command to run and its arguments.
     """
