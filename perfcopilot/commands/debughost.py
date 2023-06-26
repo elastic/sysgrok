@@ -49,17 +49,33 @@ def ask_llm_for_commands(problem_description):
     prompt = """I am a sysadmin. I am logged onto a machine that is experiencing a
 problem. I need you to tell me what Linux commands to run to debug the problem.
 
-Your task is to suggest a list of up to ten Linux commands that I should run
-that will provide information I can use to debug this problem.
-You should format your output as JSON.
+Your task is to suggest a list of up to fifty Linux command line tools that I should run
+that will provide information I can use to debug this problem. For each command line tool you must explain
+how it will help debug the problem. You should format your output as JSON. Return a JSON dictionary
+where the keys are the commands and their arguments and the values are the explanation of how
+that command will help debug the problem.
 
-You must never suggest a command that has a placeholder for a port or pid. e.g. <port> or <pid> must
-never appear in the suggested command, or any other placeholder.
+Be aware that there may be more than one process with the same name running on the system, so commands like
+pidof may return multiple process IDs.
 
 All commands that you suggest must exit after a maximum of 10 seconds. You must provide the arguments
 to the command that will cause it to exit before this time limit.
 
-Here is an example. I will specify the problem. You will tell me the commands to run to debug it.
+I must be able to run every command you suggest directly from the command line (e.g. from bash). You must
+prefix any command that require elevated privileges with "sudo".
+
+Do not suggest any commands that would start or stop any services or edit the configuration of existing services
+running on the host.
+
+I will run the commands you suggest verbatim, so you must never suggest an argument to a command that is a
+placeholder that needs to be replaced. If a command line tool requires a port or a process ID then the
+command you generate must calculate this value via command substitution or some other mechanism.
+
+Here is an example. I will specify the problem. You will tell me the command line tools to run to debug it. This
+example has four command line tools, but you should respond with fifty if you can. It is OK to respond with fewer
+if there are fewer than fifty commands that are likely to be useful.
+
+The commands you generate will be put in a JSON string, so ensure they are escaped correctly.
 
 Problem: Applications on the host are running slowly
 Command line tools: {{
