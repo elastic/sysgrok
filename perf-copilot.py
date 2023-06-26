@@ -47,18 +47,35 @@ import openai
 from dotenv import load_dotenv
 load_dotenv()
 
-openai.api_key = os.environ["GAI_API_KEY"]
-openai.api_type = os.environ["GAI_API_TYPE"]
-openai.api_base = os.environ["GAI_API_BASE"]
-openai.api_version = os.environ["GAI_API_VERSION"]
+api_type = api_key = api_base = api_version = None
 
-if not openai.api_key:
-    sys.stderr.write("You must set the GAI API key\n")
+try:
+    api_type = os.environ["GAI_API_TYPE"]
+    api_key = os.environ["GAI_API_KEY"]
+    api_base = os.environ["GAI_API_BASE"]
+    api_version = os.environ["GAI_API_VERSION"]
+except KeyError:
+    pass
+
+if not api_key or not api_type:
+    sys.stderr.write("You must set the GAI API type and key\n")
     sys.exit(1)
 
-if openai.api_type == "azure" and not (openai.api_base and openai.api_version):
-    sys.stderr.write("Azure requires the API base and version to be set")
-    sys.exit(1)
+openai.api_key = api_key
+openai.api_type = api_type
+
+if api_type == "azure":
+    if not (api_base and api_version):
+        sys.stderr.write("Azure requires the API base and version to be set")
+        sys.exit(1)
+    openai.api_base = api_base
+    openai.api_version = api_version
+
+if api_type == "open_ai":
+    if api_base or api_version:
+        sys.stderr.write("You must not to set the GAI_API_BASE or GAI_API_VERSION for the open_ai GAI_API_TYPE")
+        sys.exit(1)
+
 
 ascii_name = """
                   __                       _ _       _

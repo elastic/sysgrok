@@ -122,7 +122,7 @@ def get_chat_completion_args(messages, stream=False):
 
     if openai.api_type == "azure":
         kwargs["deployment_id"] = get_model()
-    elif openai.api_type == "openai":
+    elif openai.api_type == "open_ai":
         kwargs["model"] = get_model()
     else:
         logging.error(f"Unknown API type: {openai.api_type}")
