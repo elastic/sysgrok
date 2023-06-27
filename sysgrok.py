@@ -70,11 +70,13 @@ if api_type == "azure":
         sys.exit(1)
     openai.api_base = api_base
     openai.api_version = api_version
-
-if api_type == "open_ai":
+elif api_type == "open_ai":
     if api_base or api_version:
         sys.stderr.write("You must not to set the GAI_API_BASE or GAI_API_VERSION for the open_ai GAI_API_TYPE")
         sys.exit(1)
+else:
+    sys.stderr.write(f"Invalid GAI_API_TYPE value: '{api_type}'. Must be azure or open_ai.")
+    sys.exit(1)
 
 
 ascii_name = """
