@@ -20,7 +20,7 @@ import sys
 
 from multiprocessing import Pool
 
-from perfcopilot import llm
+from sgrk import llm
 
 
 def multiproc_wrapper_summarise_command(llm_config, *args):

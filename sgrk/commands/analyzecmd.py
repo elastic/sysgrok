@@ -19,9 +19,9 @@ import argparse
 import logging
 import sys
 
-from perfcopilot import llm
-from perfcopilot.cmdanalysis import summarise_command
-from perfcopilot.cmdexec import execute_commands_remote
+from sgrk import llm
+from sgrk.cmdanalysis import summarise_command
+from sgrk.cmdexec import execute_commands_remote
 
 
 command = "analyzecmd"

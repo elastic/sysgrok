@@ -19,10 +19,10 @@ import json
 import logging
 import sys
 
-from perfcopilot.ui import query_yes_no
-from perfcopilot.llm import get_llm_response
-from perfcopilot.cmdanalysis import analyse_command_output
-from perfcopilot.cmdexec import execute_commands_remote
+from sgrk.ui import query_yes_no
+from sgrk.llm import get_llm_response
+from sgrk.cmdanalysis import analyse_command_output
+from sgrk.cmdexec import execute_commands_remote
 
 command = "debughost"
 help = "Debug an issue by executing CLI tools and interpreting the output"

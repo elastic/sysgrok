@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from perfcopilot.llm import print_streamed_llm_response, chat
+from sgrk.llm import print_streamed_llm_response, chat
 
 command = "findfaster"
 help = "Search for faster alternatives to a provided library or program"

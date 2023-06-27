@@ -18,7 +18,7 @@
 import sys
 import argparse
 
-from perfcopilot.llm import print_streamed_llm_response, chat
+from sgrk.llm import print_streamed_llm_response, chat
 
 
 command = "stacktrace"

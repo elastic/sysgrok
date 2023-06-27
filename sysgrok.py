@@ -25,8 +25,8 @@
 # Email: sean.heelan@elastic.co
 
 
-from perfcopilot.llm import LLMConfig, set_config
-from perfcopilot.commands import (
+from sgrk.llm import LLMConfig, set_config
+from sgrk.commands import (
     analyzecmd,
     code,
     debughost,
@@ -78,16 +78,15 @@ if api_type == "open_ai":
 
 
 ascii_name = """
-                  __                       _ _       _
-                 / _|                     (_) |     | |
- _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
-| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
-| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
-| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
-| |                                 | |
-|_|                                 |_|
+                               _
+ ___ _   _ ___  __ _ _ __ ___ | | __
+/ __| | | / __|/ _` | '__/ _ \| |/ /
+\__ \ |_| \__ \ (_| | | | (_) |   <
+|___/\__, |___/\__, |_|  \___/|_|\_\
 
-Performance analysis and optimisation with LLMs
+     |___/     |___/
+
+System analysis and optimisation with LLMs
 """
 
 if __name__ == "__main__":

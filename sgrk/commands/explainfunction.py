@@ -17,7 +17,7 @@
 
 import sys
 
-from perfcopilot.llm import print_streamed_llm_response, chat
+from sgrk.llm import print_streamed_llm_response, chat
 
 
 command = "explainfunction"

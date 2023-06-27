@@ -1,6 +1,5 @@
-`perf-copilot` is an experimental proof-of-concept, intended to demonstrate how
-LLMs can be used to help SWEs and SREs to optimise the performance of their systems, debug issues, and
-resolve stability and reliability problems.
+`sysgrok` is an experimental proof-of-concept, intended to demonstrate how
+LLMs can be used to help SWEs and SREs to understand systems, debug issues, and optimise performance.
 
 It can do things like:
 
@@ -19,7 +18,7 @@ executes one or more commands, and summarises the result. The demo shows how thi
 used to automate the process described in Brendan Gregg's article -
 [Linux Performance Analysis in 60 seconds](https://www.brendangregg.com/Articles/Netflix_Linux_Perf_Analysis_60s.pdf).
 
-[![asciicast](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC.svg)](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC)
+[![asciicast](https://asciinema.org/a/593518.svg)](https://asciinema.org/a/593518)
 
 # Installation
 
@@ -37,23 +36,21 @@ $ pip install -r requirements.txt # Install requirements in the virtual environm
 
 # Usage
 
-For now, `perf-copilot` is a command line tool and takes input either via stdin
+For now, `sysgrok` is a command line tool and takes input either via stdin
 or from a file, depending on the command. Usage is as follows:
 
 ```
-usage: ./perf-copilot.py [-h] [-d] [-e] [-c] [--output-format OUTPUT_FORMAT] [-m MODEL] [--temperature TEMPERATURE] [--max-concurrent-queries MAX_CONCURRENT_QUERIES]
-                         {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn} ...
+usage: ./sysgrok.py [-h] [-d] [-e] [-c] [--output-format OUTPUT_FORMAT] [-m MODEL] [--temperature TEMPERATURE] [--max-concurrent-queries MAX_CONCURRENT_QUERIES]
+                    {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn} ...
 
-                  __                       _ _       _
-                 / _|                     (_) |     | |
- _ __   ___ _ __| |_ ______ ___ ___  _ __  _| | ___ | |_
-| '_ \ / _ \ '__|  _|______/ __/ _ \| '_ \| | |/ _ \| __|
-| |_) |  __/ |  | |       | (_| (_) | |_) | | | (_) | |_
-| .__/ \___|_|  |_|        \___\___/| .__/|_|_|\___/ \__|
-| |                                 | |
-|_|                                 |_|
+                               _
+ ___ _   _ ___  __ _ _ __ ___ | | __
+/ __| | | / __|/ _` | '__/ _ \| |/ /
+\__ \ |_| \__ \ (_| | | | (_) |   <
+|___/\__, |___/\__, |_|  \___/|_|\_
+     |___/     |___/
 
-Performance analysis and optimisation with LLMs
+System analysis and optimisation with LLMs
 
 positional arguments:
   {analyzecmd,code,explainfunction,explainprocess,debughost,findfaster,stacktrace,topn}
@@ -70,7 +67,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   -d, --debug           Debug output
-  -e, --echo-input      Echo the input provided to perf-copilot. Useful when input is piped in and you want to see what it is
+  -e, --echo-input      Echo the input provided to sysgrok. Useful when input is piped in and you want to see what it is
   -c, --chat            Enable interactive chat after each LLM response
   --output-format OUTPUT_FORMAT
                         Specify the output format for the LLM to use
@@ -91,7 +88,7 @@ ideas.
 # Adding a New Command
 
 Adding a new command is easy. You need to:
-1. Create a file, yourcommand.py, in the `perfcopilot/commands` directory. It's
+1. Create a file, yourcommand.py, in the `sysgrok/commands` directory. It's
 likely easiest to just copy an existing command, e.g. `stacktrace.py`
 2. Your command file needs to have the following components:
     * A top level `command` variable which is the name users will use to invoke
@@ -104,21 +101,21 @@ likely easiest to just copy an existing command, e.g. `stacktrace.py`
     * A `run` function that is the interface to your command. It will be the
     function that creates the LLM queries and produces a result. It should
     return 0 upon success, or -1 otherwise.
-3. Update `perf-copilot.py`:
+3. Update `sysgrok.py`:
     * Add your command to the imports
     * Add your command to the `commands` dict.
 
 # Examples
 
-Note 1: The output of `perf-copilot` is heavily dependent on the input prompts, and
+Note 1: The output of `sysgrok` is heavily dependent on the input prompts, and
 I am still experimenting with them. This means that the output you get from
-running `perf-copilot` may differ from what you see below. It may also vary based
+running `sysgrok` may differ from what you see below. It may also vary based
 on minor differences in your input format, or the usual quirks of LLMs. If you
 have an example where the output you get from a command is incorrect or
 otherwise not helpful, please file an issue and let me know. If I can figure out
-how to get `perf-copilot` to act more usefully, I will.
+how to get `sysgrok` to act more usefully, I will.
 
-Note 2: The output of `perf-copilot` is also heavily dependent on the OpenAI model
+Note 2: The output of `sysgrok` is also heavily dependent on the OpenAI model
 used. The default is `gpt-3.5-turbo` and these examples have been generated
 using that. See the usage docs for other options. If the results you get are not
 good enough with `gpt-3.5-turbo` then try `gpt-4`. It is slower and more
@@ -133,7 +130,7 @@ the most expensive libraries and functions in their system, and then going on
 a hunt for an optimised version. The `findfaster` command solves this problem
 for you. Here are some examples.
 
-[![asciicast](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT.svg)](https://asciinema.org/a/SikklBJXeLOISK0Fwz3eyFENT)
+[![asciicast](https://asciinema.org/a/593479.svg)](https://asciinema.org/a/593479)
 
 ## Analysing the TopN functions and suggesting optimisations
 
@@ -148,12 +145,12 @@ world of whole-system, or whole-data-center, profiling, where there are a
 huge number of programs and libraries running, and you are often unfamiliar
 with many of them.
 
-The `perf-copilot topn` command helps with this. Provide it with your Top-N, and
+The `sysgrok topn` command helps with this. Provide it with your Top-N, and
 it will try to summarise what each program, library and function is doing, as
 well as providing you with some suggestions as to what you might do to
 optimise your system.
 
-[![asciicast](https://asciinema.org/a/Iv4NYKpbcccHx742kY1FMfbap.svg)](https://asciinema.org/a/Iv4NYKpbcccHx742kY1FMfbap)
+[![asciicast](https://asciinema.org/a/593492.svg)](https://asciinema.org/a/593492)
 
 ## Explaining a specific function and suggesting optimisations
 
@@ -162,9 +159,9 @@ If you know a particular function is using signficant CPU then, using the
 specific function, and for optimistion suggestions, instead of asking about
 the entire Top N.
 
-[![asciicast](https://asciinema.org/a/lErwolZTG21bgxGPYiXgSwab1.svg)](https://asciinema.org/a/lErwolZTG21bgxGPYiXgSwab1)
+[![asciicast](https://asciinema.org/a/593483.svg)](https://asciinema.org/a/593483)
 
-## Analysing command output, diagnosing issues, and suggesting remdiations
+## Executing commands on a remote host and analysing the response using the LLM
 
 The `analyzecmd` command takes a host and one or more Linux commands to execute.
 It connects to the host, executes the commands and summarises the results. You can
@@ -173,16 +170,16 @@ the command output will be summarised with respect to that problem.
 
 This first example shows how one or more commands can be executed.
 
-[![asciicast](https://asciinema.org/a/SHGe9XQnehXmKAsstVMnbEUAz.svg)](https://asciinema.org/a/SHGe9XQnehXmKAsstVMnbEUAz)
+[![asciicast](https://asciinema.org/a/593515.svg)](https://asciinema.org/a/593515)
 
 We can also use `analyzecmd` to analyse commands that produce logs.
 
-[![asciicast](https://asciinema.org/a/ILYKfhfmHq6qFgmx5h8gTqTCr.svg)](https://asciinema.org/a/ILYKfhfmHq6qFgmx5h8gTqTCr)
+[![asciicast](https://asciinema.org/a/593516.svg)](https://asciinema.org/a/593516)
 
 And in this final example we execute and analyze the commands recommended by
 Brendan Gregg  in his article "Linux Performance Analysis in 60 seconds".
 
-[![asciicast](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC.svg)](https://asciinema.org/a/cIg4I8XjSwnJfQnLgYnambdRC)
+[![asciicast](https://asciinema.org/a/593518.svg)](https://asciinema.org/a/593518)
 
 ## Automatically debug a problem on a host
 
@@ -195,4 +192,4 @@ debugging the problem.
 4. Concatenates the summaries and passes them to the LLM to ask for a report on
 the likely source of the problem the user is facing.
 
-[![asciicast](https://asciinema.org/a/3My9yInEUqWau0HSZANwD1n0F.svg)](https://asciinema.org/a/3My9yInEUqWau0HSZANwD1n0F)
+[![asciicast](https://asciinema.org/a/593520.svg)](https://asciinema.org/a/593520)
