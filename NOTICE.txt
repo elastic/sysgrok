@@ -1,2 +1,2 @@
-perf-copilot
+sysgrok
 Copyright 2023 Elasticsearch B.V
