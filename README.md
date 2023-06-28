@@ -10,6 +10,9 @@ debug the issue and suggest remediations.
 * Take source code that has been annotated by a profiler, explain the hot paths, and
 suggest ways to improve the performance of the code.
 
+Check out the release [blog post](https://www.elastic.co/blog/open-sourcing-sysgrok-ai-assistant) for
+a longer introduction. 
+
 See the Command Overview section below for an overview of the full list of available
 commands that it supports.
 
