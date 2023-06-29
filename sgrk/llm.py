@@ -90,6 +90,19 @@ def get_max_concurrent_queries():
     return config.max_concurrent_queries
 
 
+def get_model_max_tokens():
+    model = get_model()
+    if model == "gpt-3.5-turbo":
+        return 4096
+    elif model == "gpt-4":
+        return 8192
+    elif model == "gpt-4-32k":
+        return 32768
+    else:
+        logging.error(f"Unknown model: {model}")
+        sys.exit(-1)
+
+
 def get_base_messages():
     messages = [
         {

@@ -102,16 +102,7 @@ def calculate_max_chars_per_command_summary(prompt, example_response, num_comman
     look like."""
 
     model = llm.get_model()
-
-    if model == "gpt-3.5-turbo":
-        max_tokens = 4096
-    elif model == "gpt-4":
-        max_tokens = 8192
-    elif model == "gpt-4-32k":
-        max_tokens = 32768
-    else:
-        print(f"Unknown model: {model}")
-        sys.exit(-1)
+    max_tokens = llm.get_model_max_tokens()
 
     prompt_tokens = llm.get_token_count(prompt, model)
     response_tokens = llm.get_token_count(example_response, model)

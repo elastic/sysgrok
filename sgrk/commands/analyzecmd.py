@@ -37,17 +37,7 @@ def add_to_command_parser(subparsers):
 
 
 def get_summary_max_chars():
-    model = llm.get_model()
-    if model == "gpt-3.5-turbo":
-        max_tokens = 4096
-    elif model == "gpt-4":
-        max_tokens = 8192
-    elif model == "gpt-4-32k":
-        max_tokens = 32768
-    else:
-        logging.error(f"Unknown model: {model}")
-        sys.exit(-1)
-
+    max_tokens = llm.get_model_max_tokens()
     # Hard code the character to token ratio for now.
     return max_tokens * 2.5
 
