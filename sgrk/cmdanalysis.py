@@ -16,7 +16,6 @@
 # under the License.
 
 import logging
-import sys
 
 from multiprocessing import Pool
 
