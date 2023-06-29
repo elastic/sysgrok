@@ -121,8 +121,8 @@ def get_base_messages():
     return messages
 
 
-def get_token_count(data, model):
-    enc = tiktoken.encoding_for_model(model)
+def get_token_count(data):
+    enc = tiktoken.encoding_for_model(get_model())
     return len(enc.encode(data))
 
 

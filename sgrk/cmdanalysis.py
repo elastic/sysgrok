@@ -100,11 +100,10 @@ def calculate_max_chars_per_command_summary(prompt, example_response, num_comman
     command summaries. The example response should be a string indicative of what the response will
     look like."""
 
-    model = llm.get_model()
     max_tokens = llm.get_model_max_tokens()
 
-    prompt_tokens = llm.get_token_count(prompt, model)
-    response_tokens = llm.get_token_count(example_response, model)
+    prompt_tokens = llm.get_token_count(prompt)
+    response_tokens = llm.get_token_count(example_response)
     # Allow for a slightly bigger response than the example response
     response_tokens = int(response_tokens * 1.5)
 
