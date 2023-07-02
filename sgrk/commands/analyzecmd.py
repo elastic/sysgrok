@@ -19,7 +19,6 @@ import argparse
 import logging
 import sys
 
-from sgrk import llm
 from sgrk.cmdanalysis import summarise_command
 from sgrk.cmdexec import execute_commands_remote
 
@@ -31,15 +30,9 @@ help = "Summarise the output of a command, optionally with respect to a problem 
 def add_to_command_parser(subparsers):
     parser = subparsers.add_parser(command, help=help)
     parser.add_argument("-p", "--problem-description", help="Optional description of the problem you are investigating")
-    parser.add_argument("-t", "--target-host",
+    parser.add_argument("-t", "--target-host", required=True,
                         help="The host to connect to via ssh. Otherwise command is run locally.")
     parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to execute and analyze")
-
-
-def get_summary_max_chars():
-    max_tokens = llm.get_model_max_tokens()
-    # Hard code the character to token ratio for now.
-    return max_tokens * 2.5
 
 
 def run(args_parser, args):
@@ -63,7 +56,7 @@ def run(args_parser, args):
         logging.error(f"Failed to execute {args.command}")
         sys.exit(1)
 
-    max_chars = get_summary_max_chars()
-    _, summary = summarise_command(args.command, command_output[args.command], max_chars, args.problem_description)
+    _, summary = summarise_command(args.command, command_output[args.command],
+                                   problem_description=args.problem_description)
     print(summary)
     return 0

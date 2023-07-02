@@ -32,19 +32,248 @@ def multiproc_wrapper_summarise_command(llm_config, *args):
     return summarise_command(*args)
 
 
-def summarise_command(command, command_output, summary_max_chars, problem_description=None):
-    """Use the LLM to summarise the output of a command in summary_max_chars or fewer characters.
+_summarise_summaries_prompt_with_problem = """I am a systems adminstrator. I have logged onto a Linux machine that
+is experiencing the following problem: {problem_description}. I have executed the command
+"{command}" to debug that problem.
 
-    command should be the command and its arguments. command_output should be a dict with elements
-    exit_code, stderr and stdout.
+The full command output (stdout) is too long to give to you, so I have split the output into
+chunks and summarised those chunks. I will give you an ordered list of these summaries.
+
+Your task is to create a summary of the entire command output from the chunk summaries. Your
+summary should focus on information that is useful in understanding and debugging the problem
+'{problem_description}'.
+
+Problem: {problem_description}
+Command: {command}
+Exit code: {exit_code}
+Stderr: {stderr}
+Stdout chunk summaries: {chunk_summaries}
+Final summary, created from the chunk summaries (in {summary_max_chars} or fewer):"""
+
+_summarise_summaries_prompt_without_problem = """I am a systems adminstrator. I have logged onto a Linux machine
+and I have executed the command "{command}".
+
+The full command output (stdout) is too long to give to you, so I have split the output into
+chunks and summarised those chunks. I will give you an ordered list of these summaries.
+
+Your task is to create a summary of the entire command output from the chunk summaries. Your
+summary should give the user an overview of all notable information found in the output of the
+command. Your summary must include any information that points to performance, security, reliability, or
+stability issues with the machine or any services running on it.
+
+Command: {command}
+Exit code: {exit_code}
+Stderr: {stderr}
+Stdout chunk summaries: {chunk_summaries}
+Final summary, created from the chunk summaries (in {summary_max_chars} or fewer):"""
+
+
+def _summarise_chunk_summaries(command, command_output, chunk_summaries, summary_max_chars, problem_description):
+    """When we encounter command output that is too long to include in a prompt for summarisation
+    we split it into chunks and summarise each of those chunks. This function is then called to
+    produce the final output summary for that command from these individual output chunk summaries.
+    """
+
+    if problem_description:
+        logging.debug(
+            f"Creating command summary from {len(chunk_summaries)} chunk summaries (max chars: {summary_max_chars}):"
+            f" {command}. Problem:'{problem_description}")
+        prompt = _summarise_summaries_prompt_with_problem.format(
+            problem_description=problem_description,
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            chunk_summaries=chunk_summaries)
+    else:
+        logging.debug(f"Creating command summary from {len(chunk_summaries)} chunk summaries "
+                      f" (max chars: {summary_max_chars}): {command}")
+        prompt = _summarise_summaries_prompt_without_problem.format(
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            chunk_summaries=chunk_summaries)
+
+    summary = llm.get_llm_response(prompt)
+    return command, summary
+
+
+def _split_command_output_into_chunks(command_output, chunk_num_chars):
+    lines = command_output.splitlines()
+    logging.debug(f"Split command output of len {len(command_output)} into {len(lines)} lines")
+
+    chunks = []
+    curr_chunk = []
+    curr_chunk_numchars = 0
+    for line in lines:
+        if curr_chunk_numchars + len(line) <= chunk_num_chars:
+            curr_chunk.append(line)
+            curr_chunk_numchars += len(line)
+            continue
+
+        chunks.append("\n".join(curr_chunk))
+        curr_chunk = [line]
+        curr_chunk_numchars = len(line)
+
+    chunks.append("\n".join(curr_chunk))
+    logging.debug(f"Split command output of len {len(command_output)} into {len(chunks)} chunks"
+                  f" with {chunk_num_chars} characters each")
+    return chunks
+
+
+_summarise_chunk_prompt_with_problem = """I am a systems adminstrator. I have logged onto a Linux machine that
+is experiencing the following problem: {problem_description}. I have executed the command
+"{command}" to debug that problem. Your task is to summarise the output of that command. Your
+summary should focus on information that is useful in understanding and debugging the problem
+'{problem_description}'. Your summary should also include any information that points to performance,
+security, reliability, or stability issues with the machine or any services running on it.
+
+The stdout output of the command is too long for you to process all at once so I will split it
+into chunks and provide you with those chunks to summarise one at a time. Your summary of each
+chunk must use a maximum of {chunk_summary_max_chars} text characters. Once you have summarised
+each chunk I will then ask you to produce a final summary from each of the chunk summaries.
+Therefore you should also include in each chunk summary any information that you think would be
+useful to you when producing a final summary from the individual chunk summaries. If the output
+format of the command "{command}" means that information found in a particular chunk is
+necessary to understand a later chunk then you should include that information in your summary.
+
+Problem: {problem_description}
+Command: {command}
+Stdout (chunk {chunk_number} of {number_of_chunks}): {chunk_data}
+Chunk Summary (in {chunk_summary_max_chars} or fewer):"""
+
+_summarise_chunk_prompt_without_problem = """I am a sysems adminstrator. I have logged onto a Linux machine and
+executed the command "{command}". Your task is to summarise the output of that command. Your summary
+should give an overview of any notable information found in the output of the command. In particular,
+your summary must include any information that points to performance, security, reliability or stability
+issues with the machine or any services running on it.
+
+The stdout output of the command is too long for you to process all at once so I will split it
+into chunks and provide you with those chunks to summarise one at a time. Your summary of each
+chunk must use a maximum of {chunk_summary_max_chars} text characters. Once you have summarised
+each chunk I will then ask you to produce a final summary from each of the chunk summaries.
+Therefore you should also include in each chunk summary any information that you think would be
+useful to you when producing a final summary from the individual chunk summaries. If the output
+format of the command "{command}" means that information found in a particular chunk is
+necessary to understand a later chunk then you should include that information in your summary.
+
+Command: {command}
+Stdout (chunk {chunk_number} of {number_of_chunks}): {chunk_data}
+Chunk Summary (in {chunk_summary_max_chars} or fewer):"""
+
+
+def _summarise_command_chunked(command, command_output, summary_max_chars, problem_description=None):
+    """Use the LLM to summarise the output of a command in summary_max_chars or fewer characters.
+    This function should be used when the command_output results in a summarisation prompt that
+    is too large for the model's context window limit.
+
+    Experimentation is still needed to validate whether or not the approach in this function
+    loses information in comparison to the normal summarise_command approach which can fit the
+    entire command output in a single call to the LLM.
+    """
+
+    # Step 1: Split the input data into chunks
+    if problem_description:
+        # To split the command output we need to know how long each chunk can be. This depends on the
+        # prompt that it will be embedded in, so we need to create that prompt, minus the chunk summary.
+        summarise_chunk_dummy_prompt = _summarise_chunk_prompt_with_problem.format(
+                problem_description=problem_description,
+                command=command,
+                chunk_summary_max_chars=100000,
+                chunk_data="",
+                chunk_number=1000,
+                number_of_chunks=1000)
+        # We also need to know how long each chunk summary can be. This depends on the prompt that will
+        # eventually be used to compute the final summary from the chunk summaries.
+        summarise_summaries_dummy_prompt = _summarise_summaries_prompt_with_problem.format(
+            problem_description=problem_description,
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            chunk_summaries="")
+    else:
+        summarise_chunk_dummy_prompt = _summarise_chunk_prompt_without_problem.format(
+                command=command,
+                chunk_summary_max_chars=100000,
+                chunk_data="",
+                chunk_number=1000,
+                number_of_chunks=1000)
+        summarise_summaries_dummy_prompt = _summarise_summaries_prompt_without_problem.format(
+            command=command,
+            summary_max_chars=summary_max_chars,
+            exit_code=command_output.exit_code,
+            stderr=command_output.stderr,
+            chunk_summaries="")
+
+    # Calculate the number of characters that should be in each chunk and then split
+    summarise_chunk_dummy_prompt_tokens = llm.get_token_count(summarise_chunk_dummy_prompt)
+    chunk_tokens = llm.get_model_max_tokens() - summarise_chunk_dummy_prompt_tokens
+    chunk_num_chars = int(chunk_tokens * llm.get_command_char_token_ratio() + 0.5)
+    chunks = _split_command_output_into_chunks(command_output.stdout, chunk_num_chars)
+
+    # Calculate the maximum number of characters each chunk summary can use
+    summarise_summaries_dummy_prompt_tokens = llm.get_token_count(summarise_summaries_dummy_prompt)
+    chunk_summary_max_tokens = int(summarise_summaries_dummy_prompt_tokens / len(chunks) + 0.5)
+    chunk_summary_max_chars = chunk_summary_max_tokens * llm.get_prose_char_token_ratio()
+
+    # Step 2: Summarise each chunk
+    chunk_idx = 0
+    chunk_summaries = []
+    num_chunks = len(chunks)
+    while chunk_idx < num_chunks:
+        if problem_description:
+            logging.debug(
+                f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: {chunk_summary_max_chars}): {command}."
+                " Problem:'{problem_description}")
+            prompt = _summarise_chunk_prompt_with_problem.format(
+                problem_description=problem_description,
+                command=command,
+                chunk_summary_max_chars=chunk_summary_max_chars,
+                chunk_data=chunks[chunk_idx],
+                chunk_number=chunk_idx,
+                number_of_chunks=num_chunks)
+        else:
+            logging.debug(f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: {summary_max_chars}):"
+                          f" {command}")
+            prompt = _summarise_chunk_prompt_without_problem.format(
+                command=command,
+                chunk_summary_max_chars=chunk_summary_max_chars,
+                chunk_data=chunks[chunk_idx],
+                chunk_number=chunk_idx,
+                number_of_chunks=num_chunks)
+
+        chunk_summaries.append(llm.get_llm_response(prompt))
+        chunk_idx += 1
+
+    # Step 3: Create a final summary from the summaries of each chunk
+    return _summarise_chunk_summaries(command, command_output, chunk_summaries, summary_max_chars, problem_description)
+
+
+def summarise_command(command, command_output, summary_max_chars=None, problem_description=None):
+    """Use the LLM to summarise the output of a command.
+
+    Args:
+        command (str): The command and its arguments
+        command_output (cmdexec.CommandResult): The output of running the command
+        summary_max_chars (int): Tell the LLM to limit the summary to this number of characters
+        problem_description (str): Description of the problem the user is investigating using
+            the command. If provided then the LLM will be asked to summarise the command output
+            with respect to this problem description.
+
+    Returns:
+        (str, str): A tuple of the command and the summary
     """
 
     prompt_with_problem = """I am a sysadmin. I am logged onto a Linux machine that is experiencing the
 following problem: {problem_description}.
 I have executed the command '{command}' to debug that problem. I will provide you with the stdout,
 stderr and exit code of the command. I need you to summarise the output
-of the command, using a maximum of {summary_max_chars} characters. Your summary should only include
-information that is useful in understanding and debugging the problem '{problem_description}'.
+of the command, using a maximum of {summary_max_chars} characters. Your summary must include
+information that is useful in understanding and debugging the problem '{problem_description}'. Your summary
+should also include any information that points to performance, security, reliability, or
+stability issues with the machine or any services running on it.
 If there is no information in the exit code, stderr and stdout of the command that is useful in
 understanding or debugging the problem say "No useful information".
 
@@ -53,22 +282,30 @@ Command: {command}
 Exit code: {exit_code}
 Stderr: {stderr}
 Stdout: {stdout}
-Summary (in {summary_max_chars} or fewer):
+Summary (in {summary_max_chars} or fewer characters):
 """
 
     prompt_without_problem = """I am a sysadmin. I am logged onto a Linux machine and I have executed the
 command '{command}'. I will provide you with the stdout, stderr and exit code of the command. I need you to
 summarise the output of the command, using a maximum of {summary_max_chars} characters. Your summary should
 give the user an overview of any notable information found in the output of the command. In particular,
-your summary must include any information that points to performance or stability issues with the machine
-or any services running on it.
+your summary must include any information that points to performance, security, reliability orstability
+issues with the machine or any services running on it.
 
 Command: {command}
 Exit code: {exit_code}
 Stderr: {stderr}
 Stdout: {stdout}
-Summary (in {summary_max_chars} or fewer):
+Summary (in {summary_max_chars} or fewer characters):
 """
+
+    summary_tokens = None
+    if not summary_max_chars:
+        # If no number is given for the summary size then lets say 10% of the available context length
+        summary_tokens = llm.get_model_max_tokens() * .10
+        summary_max_chars = int(summary_tokens * llm.get_prose_char_token_ratio())
+        logging.debug(f"summary_max_characters not specified. Calculated it to be "
+                      f"{summary_tokens} tokens, {summary_max_chars} characters.")
 
     if problem_description:
         logging.debug(
@@ -89,6 +326,20 @@ Summary (in {summary_max_chars} or fewer):
             stderr=command_output.stderr,
             stdout=command_output.stdout)
 
+    # Check if there is room left for a response
+    prompt_tokens = llm.get_token_count(prompt)
+    model_max_tokens = llm.get_model_max_tokens()
+    # If summary_max_chars was not provided as an argument then we already know how many tokens
+    # we want in the summary, as we calculated it above. If summary_max_chars was provided though,
+    # then we need to calculate the token limit from it.
+    if not summary_tokens:
+        summary_tokens = int(summary_max_chars/llm.get_command_char_token_ratio() + 0.5)
+    logging.debug(f"Prompt tokens: {prompt_tokens}, model max tokens: {model_max_tokens}"
+                  f" summary tokens: {summary_tokens}")
+    if prompt_tokens > model_max_tokens - summary_tokens:
+        logging.debug("Insufficient room left in context window for summary.")
+        return _summarise_command_chunked(command, command_output, summary_max_chars, problem_description)
+
     summary = llm.get_llm_response(prompt)
     return command, summary
 
@@ -104,8 +355,8 @@ def calculate_max_chars_per_command_summary(prompt, example_response, num_comman
 
     prompt_tokens = llm.get_token_count(prompt)
     response_tokens = llm.get_token_count(example_response)
-    # Allow for a slightly bigger response than the example response
-    response_tokens = int(response_tokens * 1.5)
+    # Allow for a bigger response than the example response
+    response_tokens = int(response_tokens * 4)
 
     # Calculate the number of tokens each command can use by dividing the remaining tokens
     # after we account for the length of the prompt by the number of commands

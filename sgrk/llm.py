@@ -126,6 +126,102 @@ def get_token_count(data):
     return len(enc.encode(data))
 
 
+# Global record of the character to token ratio for the current model. Allows us to
+# calculate it once and then reuse it as necessary.
+_command_char_token_ratio = None
+
+
+def get_command_char_token_ratio():
+    """Returns a character:token ratio for output from Linux command line tools. This is
+    calculated by applying tiktoken to sample output from the `top` command.
+    """
+
+    global _command_char_token_ratio
+    if _command_char_token_ratio:
+        logging.debug(f"Returning character token ratio for Linux commands: {_command_char_token_ratio}")
+        return _command_char_token_ratio
+
+    top_output = """top - 13:23:34 up  3:37,  1 user,  load average: 0.00, 0.00, 0.00
+Tasks: 106 total,   1 running, 105 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  3.1 sy,  0.0 ni, 93.8 id,  3.1 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   3920.5 total,   2199.4 free,    253.8 used,   1467.3 buff/cache
+MiB Swap:      0.0 total,      0.0 free,      0.0 used.   3388.5 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+      1 root      20   0  166192  11780   8472 S   0.0   0.3   0:07.98 systemd
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kthreadd
+      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par_gp
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 slub_flushwq
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 netns
+      8 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/0:0H-kblockd
+     10 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 mm_percpu_wq
+     11 root      20   0       0      0      0 I   0.0   0.0   0:00.00 rcu_tasks_rude_kthread
+     12 root      20   0       0      0      0 I   0.0   0.0   0:00.00 rcu_tasks_trace_kthread
+     13 root      20   0       0      0      0 S   0.0   0.0   0:00.15 ksoftirqd/0
+     14 root      20   0       0      0      0 I   0.0   0.0   0:00.31 rcu_sched
+     15 root      rt   0       0      0      0 S   0.0   0.0   0:00.08 migration/0
+     16 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 idle_inject/0
+     18 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/0
+     19 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/1
+     20 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 idle_inject/1
+     21 root      rt   0       0      0      0 S   0.0   0.0   0:00.44 migration/1
+     22 root      20   0       0      0      0 S   0.0   0.0   0:00.13 ksoftirqd/1
+     24 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/1:0H-events_highpri
+     25 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kdevtmpfs
+     26 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 inet_frag_wq
+     27 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kauditd
+     28 root      20   0       0      0      0 S   0.0   0.0   0:00.00 khungtaskd
+     29 root      20   0       0      0      0 I   0.0   0.0   0:00.20 kworker/u30:1-events_unbound
+     31 root      20   0       0      0      0 S   0.0   0.0   0:00.00 oom_reaper
+     32 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 writeback
+     33 root      20   0       0      0      0 S   0.0   0.0   0:00.52 kcompactd0
+     34 root      25   5       0      0      0 S   0.0   0.0   0:00.00 ksmd
+     35 root      39  19       0      0      0 S   0.0   0.0   0:00.00 khugepaged
+     36 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kintegrityd
+     37 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kblockd
+     38 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 blkcg_punt_bio
+     40 root      20   0       0      0      0 S   0.0   0.0   0:00.00 xen-balloon
+     41 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 tpm_dev_wq
+     42 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 ata_sff
+     43 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 md
+     44 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 edac-poller"""
+
+    _command_char_token_ratio = len(top_output) / get_token_count(top_output)
+    logging.debug(f"Returning character token ratio for Linux commands: {_command_char_token_ratio}")
+    return _command_char_token_ratio
+
+
+# Global record of the character to token ratio for the current model for English prose. Allows us to
+# calculate it once and then reuse it as necessary.
+_prose_char_token_ratio = None
+
+
+def get_prose_char_token_ratio():
+    """Returns a character:token ratio for English prose. This is calculated by applying tiktoken to
+    sample text (which is actually GPT-4 generated text in a command summarisation use case).
+    """
+
+    global _prose_char_token_ratio
+    if _prose_char_token_ratio:
+        logging.debug(f"Returning prose token ratio for English prose: {_prose_char_token_ratio}")
+        return _prose_char_token_ratio
+
+    sample_prose = """The system has been up for 5 hours and 15 minutes with 0 users logged in. The load
+    average is low (0.09, 0.04, 0.01), indicating that the system is not under heavy load. The CPU usage
+    is mostly idle (99.36%), with minimal user (0.17%), system (0.12%), and I/O wait (0.29%) usage. There
+    are no significant performance or stability issues detected. Memory usage is also in a healthy state,
+    with 1983 MB free out of 3920 MB total, and 3399 MB available. Swap usage is at 0 MB, indicating that
+    the system is not under memory pressure. The top processes running on the system include systemd,
+    snapd, amazon-ssm-agent, and multipathd, among others. No processes are consuming a significant amount
+    of CPU or memory resources. In conclusion, the system is currently stable and not experiencing any
+    performance issues."""
+
+    _prose_char_token_ratio = len(sample_prose) / get_token_count(sample_prose)
+    logging.debug(f"Returning prose token ratio for Linux commands: {_prose_char_token_ratio}")
+    return _prose_char_token_ratio
+
+
 def get_chat_completion_args(messages, stream=False):
     kwargs = {
         "temperature": get_temperature(),
