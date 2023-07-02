@@ -111,7 +111,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Debug output")
     parser.add_argument("-e", "--echo-input", action="store_true",
-                        help="""Echo the input provided to perf-copilot. Useful when input is piped in
+                        help="""Echo the input provided to sysgrok. Useful when input is piped in
     and you want to see what it is""")
     parser.add_argument("-c", "--chat", action="store_true",
                         help="Enable interactive chat after each LLM response")
