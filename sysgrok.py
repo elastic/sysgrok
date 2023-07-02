@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# perf-copilot is an experimental tool for performance analysis and optimisation
+# sysgrok is an experimental tool for performance analysis and optimisation
 # using LLMs. Its purpose is to take data from existing profilers and provide
 # the user with helpful summaries, advice and direction.
 #
