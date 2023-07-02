@@ -48,7 +48,7 @@ Command: {command}
 Exit code: {exit_code}
 Stderr: {stderr}
 Stdout chunk summaries: {chunk_summaries}
-Final summary, created from the chunk summaries (in {summary_max_chars} or fewer):"""
+Final summary, created from the chunk summaries (must be {summary_max_chars} or fewer characters):"""
 
 _summarise_summaries_prompt_without_problem = """I am a systems adminstrator. I have logged onto a Linux machine
 and I have executed the command "{command}".
@@ -65,7 +65,7 @@ Command: {command}
 Exit code: {exit_code}
 Stderr: {stderr}
 Stdout chunk summaries: {chunk_summaries}
-Final summary, created from the chunk summaries (in {summary_max_chars} or fewer):"""
+Final summary, created from the chunk summaries (must be {summary_max_chars} or fewer characters):"""
 
 
 def _summarise_chunk_summaries(command, command_output, chunk_summaries, summary_max_chars, problem_description):
@@ -141,7 +141,7 @@ necessary to understand a later chunk then you should include that information i
 Problem: {problem_description}
 Command: {command}
 Stdout (chunk {chunk_number} of {number_of_chunks}): {chunk_data}
-Chunk Summary (in {chunk_summary_max_chars} or fewer):"""
+Chunk Summary (in {chunk_summary_max_chars} or fewer characters):"""
 
 _summarise_chunk_prompt_without_problem = """I am a sysems adminstrator. I have logged onto a Linux machine and
 executed the command "{command}". Your task is to summarise the output of that command. Your summary
@@ -160,7 +160,7 @@ necessary to understand a later chunk then you should include that information i
 
 Command: {command}
 Stdout (chunk {chunk_number} of {number_of_chunks}): {chunk_data}
-Chunk Summary (in {chunk_summary_max_chars} or fewer):"""
+Chunk Summary (in {chunk_summary_max_chars} or fewer characters):"""
 
 
 def _summarise_command_chunked(command, command_output, summary_max_chars, problem_description=None):
@@ -215,8 +215,9 @@ def _summarise_command_chunked(command, command_output, summary_max_chars, probl
 
     # Calculate the maximum number of characters each chunk summary can use
     summarise_summaries_dummy_prompt_tokens = llm.get_token_count(summarise_summaries_dummy_prompt)
-    chunk_summary_max_tokens = int(summarise_summaries_dummy_prompt_tokens / len(chunks) + 0.5)
-    chunk_summary_max_chars = chunk_summary_max_tokens * llm.get_prose_char_token_ratio()
+    summary_tokens_available = llm.get_model_max_tokens() - summarise_summaries_dummy_prompt_tokens
+    chunk_summary_max_tokens = int(summary_tokens_available / len(chunks) + 0.5)
+    chunk_summary_max_chars = int(chunk_summary_max_tokens * llm.get_prose_char_token_ratio())
 
     # Step 2: Summarise each chunk
     chunk_idx = 0
@@ -225,8 +226,8 @@ def _summarise_command_chunked(command, command_output, summary_max_chars, probl
     while chunk_idx < num_chunks:
         if problem_description:
             logging.debug(
-                f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: {chunk_summary_max_chars}): {command}."
-                " Problem:'{problem_description}")
+                f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: {chunk_summary_max_chars}): "
+                f"{command}. Problem: '{problem_description}'")
             prompt = _summarise_chunk_prompt_with_problem.format(
                 problem_description=problem_description,
                 command=command,
@@ -235,8 +236,8 @@ def _summarise_command_chunked(command, command_output, summary_max_chars, probl
                 chunk_number=chunk_idx,
                 number_of_chunks=num_chunks)
         else:
-            logging.debug(f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: {summary_max_chars}):"
-                          f" {command}")
+            logging.debug(f"Summarising command chunk {chunk_idx+1}/{num_chunks} (max chars: "
+                          f"{chunk_summary_max_chars}): {command}")
             prompt = _summarise_chunk_prompt_without_problem.format(
                 command=command,
                 chunk_summary_max_chars=chunk_summary_max_chars,
@@ -302,7 +303,7 @@ Summary (in {summary_max_chars} or fewer characters):
     summary_tokens = None
     if not summary_max_chars:
         # If no number is given for the summary size then lets say 10% of the available context length
-        summary_tokens = llm.get_model_max_tokens() * .10
+        summary_tokens = int(llm.get_model_max_tokens() * .10)
         summary_max_chars = int(summary_tokens * llm.get_prose_char_token_ratio())
         logging.debug(f"summary_max_characters not specified. Calculated it to be "
                       f"{summary_tokens} tokens, {summary_max_chars} characters.")
