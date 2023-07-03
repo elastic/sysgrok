@@ -55,8 +55,8 @@ Suggest ways to optimize or improve the system that involve the {function} funct
 {library} library. Types of improvements that would be useful to me are improvements that result in:
 
 - Higher performance so that the system runs faster or uses less CPU
-- Better memory efficient so that the system uses less RAM
-- Better storage efficient so that the system stores less data on disk.
+- Better memory efficiency so that the system uses less RAM
+- Better storage efficiency so that the system stores less data on disk.
 - Better network I/O efficiency so that less data is sent over the network
 - Better disk I/O efficiency so that less data is read and written from disk
 
